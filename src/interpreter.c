@@ -7,8 +7,6 @@
 #include "../include/interpreter.h"
 #include "../include/lexer.h"
 
-bool is_valid_component(t_row *component);
-
 bool is_valid_spice_table(t_table* netlist) {
     if (!netlist) {
         printf("Table is NULL, can't interpret it.\n");
