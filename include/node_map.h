@@ -14,6 +14,7 @@
 #include "table.h"
 
 EXTERNC int node_to_int(data_t* node);
+EXTERNC void clear_node_map();
 
 #undef EXTERNC
 #endif //PEPPER_NODE_MAP_H

@@ -185,4 +185,6 @@ void interpreter_test() {
     }
     clear_table(table_spc);
     free(table_spc);
+
+    clear_node_map();
 }
