@@ -48,6 +48,8 @@ t_cell* new_cell(t_cell_data* data) {
 t_row *new_row(t_cell *first_cell) {
     t_row *row = (t_row *) malloc(sizeof(t_row));
     row->cells = first_cell;
+    row->index = 0;
+    row->component = NULL;
     row->next_row = NULL;
     return row;
 }
@@ -98,30 +100,52 @@ void append_row(t_table *table, t_row *row_to_append) {
     }
     //here, current_row is the last row, so we append to it
     current_row->next_row = row_to_append;
+    row_to_append->index = current_row->index + 1;
 }
 
-void print_cell(t_cell *cell, int row_index, int cell_index) {
+char* row_type_to_string(int type) {
+    switch (type) {
+        case TYPE_COMMENT: return "COMMENT  ";
+        case TYPE_COMMAND: return "COMMAND  ";
+        case TYPE_C: return "CAPACITOR";
+        case TYPE_D: return "DIODE    ";
+        case TYPE_E: return "VCVS     ";
+        case TYPE_F: return "CCCS     ";
+        case TYPE_G: return "VCCS     ";
+        case TYPE_H: return "CCVS     ";
+        case TYPE_L: return "INDUCTOR ";
+        case TYPE_M: return "MOSFET   ";
+        case TYPE_Q: return "BJT      ";
+        case TYPE_R: return "RESISTOR ";
+        case TYPE_V: return "SOURCE   ";
+        default:break;
+    }
+}
+
+void print_cell(t_cell *cell) {
     if (!cell) {
         printf("Cell is NULL, can't print it.\n");
         exit(EXIT_FAILURE);
     }
-    if (cell->data->type == CELL_DATA_TYPE_STRING) {
-        printf("Cell [%d][%d] { string_data: \"%s\" } ", row_index, cell_index, cell->data->value._string);
-    } else if (cell->data->type == CELL_DATA_TYPE_FLOAT) {
-        printf("Cell [%d][%d] { float_data: %f } ", row_index, cell_index, cell->data->value._float);
+    print_cell_data(cell->data);
+}
+
+void print_cell_data(const t_cell_data *cell_data) {
+    if (cell_data->type == CELL_DATA_TYPE_STRING) {
+        printf("\"%s\" ", cell_data->value._string);
+    } else if (cell_data->type == CELL_DATA_TYPE_FLOAT) {
+        printf("%f ", cell_data->value._float);
     } else {
         printf("Cell of no type");
     }
 }
 
-void print_row(t_row *row, int row_index) {
-    printf("Row %d { ", row_index);
+void print_row(t_row *row) {
+    printf("#%d: %s { ", row->index, row_type_to_string(row->type));
     t_cell *cell = row->cells;
-    int cell_index = 0;
     while (cell) {
-        print_cell(cell, row_index, cell_index);
+        print_cell(cell);
         cell = cell->next_cell;
-        ++cell_index;
     }
     printf("}\n");
 }
@@ -133,11 +157,9 @@ void print_table(t_table *table) {
     }
 
     t_row *row = table->rows;
-    int index = 0;
     while (row) {
-        print_row(row, index);
+        print_row(row);
         row = row->next_row;
-        ++index;
     }
 }
 
@@ -158,6 +180,10 @@ void clear_row(t_row* row) {
         t_cell* next_cell = cell->next_cell;
         free(cell);
         cell = next_cell;
+    }
+    if (row->component) {
+        free(row->component->label);
+        free(row->component);
     }
 }
 
@@ -206,7 +232,9 @@ int table_test() {
     for (int i = 0; i < 5; ++i) {
         t_row* row = new_row(NULL);
         for (int j = 0; j < 3; ++j) {
-            append_cell(row, new_cell(new_cell_data(j)));
+            char string[2];
+            sprintf(string, "%d", j);
+            append_cell(row, new_cell(new_cell_data(string)));
         }
         append_row(table, row);
     }
@@ -219,7 +247,7 @@ int table_test() {
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 4; ++j) {
             t_cell* cell = get_cell(table, i, j);
-            if (cell) print_cell(cell, i, j);
+            if (cell) print_cell(cell);
         }
         printf("\n");
     }

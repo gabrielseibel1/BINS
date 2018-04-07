@@ -35,17 +35,20 @@ t_table* lex(char *filename) {
 
     //get lines and fill a row out of each
     char* line;
-    while ((line = strsep(&file_content, "\n")) && line[0] != '\0') {
-        t_row* row = new_row(NULL);
+    while ((line = strsep(&file_content, "\n")) && line[0] != -1 /*EOF*/) {
 
-        //each element between commas turns into a cell, appended to the row
-        char* element;
-        while ((element = strsep(&line, " \t\r\v\f"))) {
-            t_cell* cell = new_cell(new_cell_data(element));
-            append_cell(row, cell);
+        if (line[0] != '\0') {
+            t_row* row = new_row(NULL);
+
+            //each element between commas turns into a cell, appended to the row
+            char* element;
+            while ((element = strsep(&line, " \t\r\v\f"))) {
+                t_cell* cell = new_cell(new_cell_data(element));
+                append_cell(row, cell);
+            }
+            //append filled row to table
+            append_row(table, row);
         }
-        //append filled row to table
-        append_row(table, row);
     }
     //free bytes read from file
     free(file_content_start);
@@ -72,11 +75,4 @@ void lex_test() {
     print_table(table_spc);
     clear_table(table_spc);
     free(table_spc);
-
-    /*//read haberman's survival data set
-    printf("\n\nhaberman.data:\n");
-    t_table* table_haberman = lex("../data/haberman.data");
-    print_table(table_haberman);
-    clear_table(table_haberman);
-    free(table_haberman);*/
 }
