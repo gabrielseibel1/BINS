@@ -1,14 +1,16 @@
-//
-// Created by gabriel on 4/5/18.
-//
+/**
+ * Interprets table_t to parse components, comments and commands
+ * Can populate "component" members of row_t
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "../include/interpreter.h"
 #include "../include/lexer.h"
+#include "../include/node_map.h"
 
-t_component* new_component(int type, char* label, const int nodes[MAX_NODES], t_cell_data* value) {
-    t_component* component = (t_component*) malloc(sizeof(t_component));
+component_t* new_component(int type, char* label, const int nodes[MAX_NODES], data_t* value) {
+    component_t* component = (component_t*) malloc(sizeof(component_t));
     component->type = type;
     component->label = label;
     for (int i = 0; i < MAX_NODES; ++i) {
@@ -17,7 +19,7 @@ t_component* new_component(int type, char* label, const int nodes[MAX_NODES], t_
     component->value = value;
 }
 
-bool interpret_spice_table(t_table *spice_table) {
+bool interpret_spice_table(table_t *spice_table) {
     if (!spice_table) {
         printf("Table is NULL, can't interpret it.\n");
         exit(EXIT_FAILURE);
@@ -25,7 +27,7 @@ bool interpret_spice_table(t_table *spice_table) {
 
     bool table_is_valid = true;
 
-    t_row *row = spice_table->rows;
+    row_t *row = spice_table->rows;
     while (row) {
         table_is_valid = interpret_spice_row(row) && table_is_valid;
         row = row->next_row;
@@ -34,18 +36,18 @@ bool interpret_spice_table(t_table *spice_table) {
     return table_is_valid;
 }
 
-bool is_valid_command(t_row *command) {
+bool is_valid_command(row_t *command) {
     command->type = TYPE_COMMAND;
     return true;
 }
 
-bool is_valid_component(t_row *spice_line, int node_count, int component_type) {
-    t_cell* cell = spice_line->cells;
+bool is_valid_component(row_t *spice_line, int node_count, int component_type) {
+    cell_t* cell = spice_line->cells;
 
-    //parameters to be parsed so a t_component can be constructed
+    //parameters to be parsed so a component_t can be constructed
     char* label = "\0";
     int nodes[MAX_NODES] = {UNUSED_NODE, UNUSED_NODE, UNUSED_NODE, UNUSED_NODE};
-    t_cell_data* value = NULL;
+    data_t* value = NULL;
 
     for (int i = 0; i < node_count + 2 /*label + nodes + value*/; ++i) {
         if (!cell) {
@@ -58,7 +60,7 @@ bool is_valid_component(t_row *spice_line, int node_count, int component_type) {
         } else if (i == node_count + 1) { //last cell contains value
             value = cell->data;
         } else { //the current cell is a node
-            nodes[i - 1] = get_node_number(cell->data->value);
+            nodes[i - 1] = get_node_number(cell->data);
         }
         cell = cell->next_cell;
     }
@@ -78,8 +80,8 @@ bool is_valid_component(t_row *spice_line, int node_count, int component_type) {
     return true;
 }
 
-bool interpret_spice_row(t_row *spice_line) {
-    t_cell* first_cell = spice_line->cells;
+bool interpret_spice_row(row_t *spice_line) {
+    cell_t* first_cell = spice_line->cells;
     if (first_cell->data->type == CELL_DATA_TYPE_STRING) {
 
         //analyse first character of the line
@@ -140,20 +142,20 @@ bool interpret_spice_row(t_row *spice_line) {
     }
 }
 
-void print_table_as_component_list(t_table* list_of_components) {
+void print_table_as_component_list(table_t* list_of_components) {
     if (!list_of_components) {
         printf("Table is NULL, can't print it.\n");
         exit(EXIT_FAILURE);
     }
 
-    t_row *row = list_of_components->rows;
+    row_t *row = list_of_components->rows;
     while (row) {
         if (row->component) print_component(row->component);
         row = row->next_row;
     }
 
 }
-void print_component(t_component* component) {
+void print_component(component_t* component) {
     printf("TYPE: %s\t\t", row_type_to_string(component->type));
     printf("LABEL: %s\t\t", component->label);
     for (int i = 0; i < MAX_NODES; ++i) {
@@ -164,14 +166,14 @@ void print_component(t_component* component) {
     printf("\n");
 }
 
-int get_node_number(u_cell_data_value string) {
-    return 0; //TODO change
+int get_node_number(data_t* string) {
+    return node_to_int(string);
 }
 
 void interpreter_test() {
     //read table
     printf("netlist.spc:\n");
-    t_table* table_spc = lex("../data/netlist.spc");
+    table_t* table_spc = lex("../data/netlist.spc");
 
     //validate table and pre-format it
     bool valid = interpret_spice_table(table_spc);

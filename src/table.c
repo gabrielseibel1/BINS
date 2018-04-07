@@ -9,8 +9,8 @@
 #include <stdlib.h>
 #include "../include/table.h"
 
-t_cell_data* new_cell_data(char* raw_data) {
-    t_cell_data* typed_data = (t_cell_data*) calloc(sizeof(t_cell_data), 1);
+data_t* new_cell_data(char* raw_data) {
+    data_t* typed_data = (data_t*) calloc(sizeof(data_t), 1);
 
     //use strtof() to see if raw_data is purely a float, or just an alphanumerical string
 
@@ -38,15 +38,15 @@ t_cell_data* new_cell_data(char* raw_data) {
     return typed_data;
 }
 
-t_cell* new_cell(t_cell_data* data) {
-    t_cell *cell = (t_cell *) malloc(sizeof(t_cell));
+cell_t* new_cell(data_t* data) {
+    cell_t *cell = (cell_t *) malloc(sizeof(cell_t));
     cell->data = data;
     cell->next_cell = NULL;
     return cell;
 }
 
-t_row *new_row(t_cell *first_cell) {
-    t_row *row = (t_row *) malloc(sizeof(t_row));
+row_t *new_row(cell_t *first_cell) {
+    row_t *row = (row_t *) malloc(sizeof(row_t));
     row->cells = first_cell;
     row->index = 0;
     row->component = NULL;
@@ -54,13 +54,13 @@ t_row *new_row(t_cell *first_cell) {
     return row;
 }
 
-t_table *new_table(t_row *first_row) {
-    t_table *table = (t_table *) malloc(sizeof(t_table));
+table_t *new_table(row_t *first_row) {
+    table_t *table = (table_t *) malloc(sizeof(table_t));
     table->rows = first_row;
     return table;
 }
 
-void append_cell(t_row *row, t_cell *cell_to_append) {
+void append_cell(row_t *row, cell_t *cell_to_append) {
     if (!row) {
         printf("Row is NULL, can't append cell.\n");
         exit(EXIT_FAILURE);
@@ -73,7 +73,7 @@ void append_cell(t_row *row, t_cell *cell_to_append) {
     }
 
     //look for last cell of the row
-    t_cell *current_cell = row->cells;
+    cell_t *current_cell = row->cells;
     while (current_cell->next_cell) {
         current_cell = current_cell->next_cell;
     }
@@ -81,7 +81,7 @@ void append_cell(t_row *row, t_cell *cell_to_append) {
     current_cell->next_cell = cell_to_append;
 }
 
-void append_row(t_table *table, t_row *row_to_append) {
+void append_row(table_t *table, row_t *row_to_append) {
     if (!table) {
         printf("Table is NULL, can't append row.\n");
         exit(EXIT_FAILURE);
@@ -94,7 +94,7 @@ void append_row(t_table *table, t_row *row_to_append) {
     }
 
     //look for last row of the table
-    t_row *current_row = table->rows;
+    row_t *current_row = table->rows;
     while (current_row->next_row) {
         current_row = current_row->next_row;
     }
@@ -122,7 +122,7 @@ char* row_type_to_string(int type) {
     }
 }
 
-void print_cell(t_cell *cell) {
+void print_cell(cell_t *cell) {
     if (!cell) {
         printf("Cell is NULL, can't print it.\n");
         exit(EXIT_FAILURE);
@@ -130,7 +130,7 @@ void print_cell(t_cell *cell) {
     print_cell_data(cell->data);
 }
 
-void print_cell_data(const t_cell_data *cell_data) {
+void print_cell_data(const data_t *cell_data) {
     if (cell_data->type == CELL_DATA_TYPE_STRING) {
         printf("\"%s\" ", cell_data->value._string);
     } else if (cell_data->type == CELL_DATA_TYPE_FLOAT) {
@@ -140,9 +140,9 @@ void print_cell_data(const t_cell_data *cell_data) {
     }
 }
 
-void print_row(t_row *row) {
+void print_row(row_t *row) {
     printf("#%d: %s { ", row->index, row_type_to_string(row->type));
-    t_cell *cell = row->cells;
+    cell_t *cell = row->cells;
     while (cell) {
         print_cell(cell);
         cell = cell->next_cell;
@@ -150,34 +150,34 @@ void print_row(t_row *row) {
     printf("}\n");
 }
 
-void print_table(t_table *table) {
+void print_table(table_t *table) {
     if (!table) {
         printf("Table is NULL, can't print it.\n");
         exit(EXIT_FAILURE);
     }
 
-    t_row *row = table->rows;
+    row_t *row = table->rows;
     while (row) {
         print_row(row);
         row = row->next_row;
     }
 }
 
-void clear_cell(t_cell* cell) {
+void clear_cell(cell_t* cell) {
     if (cell->data->type == CELL_DATA_TYPE_STRING) free(cell->data->value._string);
     free(cell->data);
 }
 
-void clear_row(t_row* row) {
+void clear_row(row_t* row) {
     if (!row) {
         printf("Row is NULL, can't clear it.\n");
         exit(EXIT_FAILURE);
     }
 
-    t_cell* cell = row->cells;
+    cell_t* cell = row->cells;
     while (cell) {
         clear_cell(cell);
-        t_cell* next_cell = cell->next_cell;
+        cell_t* next_cell = cell->next_cell;
         free(cell);
         cell = next_cell;
     }
@@ -187,29 +187,29 @@ void clear_row(t_row* row) {
     }
 }
 
-void clear_table(t_table* table) {
+void clear_table(table_t* table) {
     if (!table) {
         printf("Table is NULL, can't clear it.\n");
         exit(EXIT_FAILURE);
     }
 
-    t_row* row = table->rows;
+    row_t* row = table->rows;
     while (row) {
         clear_row(row);
-        t_row* next_row = row->next_row;
+        row_t* next_row = row->next_row;
         free(row);
         row = next_row;
     }
 }
 
-t_cell* get_cell(t_table* table, int row_index, int cell_index) {
+cell_t* get_cell(table_t* table, int row_index, int cell_index) {
     if (!table) {
         printf("Table is NULL, can't get cell [%d][%d].\n", row_index, cell_index);
         exit(EXIT_FAILURE);
     }
 
     //find row
-    t_row* row = table->rows;
+    row_t* row = table->rows;
     for (int i = 0; i < row_index; ++i) {
         if (!row) return NULL;
         row = row->next_row;
@@ -217,7 +217,7 @@ t_cell* get_cell(t_table* table, int row_index, int cell_index) {
     if (!row) return NULL;
 
     //find cell
-    t_cell* cell = row->cells;
+    cell_t* cell = row->cells;
     for (int j = 0; j < cell_index; ++j) {
         if (!cell) return NULL;
         cell = cell->next_cell;
@@ -228,9 +228,9 @@ t_cell* get_cell(t_table* table, int row_index, int cell_index) {
 }
 
 int table_test() {
-    t_table *table = new_table(NULL);
+    table_t *table = new_table(NULL);
     for (int i = 0; i < 5; ++i) {
-        t_row* row = new_row(NULL);
+        row_t* row = new_row(NULL);
         for (int j = 0; j < 3; ++j) {
             char string[2];
             sprintf(string, "%d", j);
@@ -246,7 +246,7 @@ int table_test() {
     printf("Testing get_cell(cell, i, j):\n");
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 4; ++j) {
-            t_cell* cell = get_cell(table, i, j);
+            cell_t* cell = get_cell(table, i, j);
             if (cell) print_cell(cell);
         }
         printf("\n");

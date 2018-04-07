@@ -8,7 +8,7 @@
 #include <ctype.h>
 #include "../include/lexer.h"
 
-t_table* lex(char *filename) {
+table_t* lex(char *filename) {
     FILE* file_pointer = fopen(filename, "r");
     if (!file_pointer) {
         printf("Can't open %s in r mode.\n", filename);
@@ -31,19 +31,19 @@ t_table* lex(char *filename) {
     char* file_content_start = file_content;
 
     //create a table to store file content
-    t_table* table = new_table(NULL);
+    table_t* table = new_table(NULL);
 
     //get lines and fill a row out of each
     char* line;
     while ((line = strsep(&file_content, "\n")) && line[0] != -1 /*EOF*/) {
 
         if (line[0] != '\0') {
-            t_row* row = new_row(NULL);
+            row_t* row = new_row(NULL);
 
             //each element between commas turns into a cell, appended to the row
             char* element;
             while ((element = strsep(&line, " \t\r\v\f"))) {
-                t_cell* cell = new_cell(new_cell_data(element));
+                cell_t* cell = new_cell(new_cell_data(element));
                 append_cell(row, cell);
             }
             //append filled row to table
@@ -65,13 +65,13 @@ void to_upper_case(char* string) {
 
 void lex_test() {
     printf("data_test.csv:\n");
-    t_table* table_test = lex("../data/data_test.csv");
+    table_t* table_test = lex("../data/data_test.csv");
     print_table(table_test);
     clear_table(table_test);
     free(table_test);
 
     printf("netlist.spc:\n");
-    t_table* table_spc = lex("../data/netlist.spc");
+    table_t* table_spc = lex("../data/netlist.spc");
     print_table(table_spc);
     clear_table(table_spc);
     free(table_spc);

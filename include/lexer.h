@@ -7,7 +7,7 @@
 
 #include "../include/table.h"
 
-t_table* lex(char *filename);
+table_t* lex(char *filename);
 void to_upper_case(char* string);
 void lex_test();
 
