@@ -62,7 +62,7 @@ table_t *new_table(row_t *first_row) {
 
 void append_cell(row_t *row, cell_t *cell_to_append) {
     if (!row) {
-        printf("Row is NULL, can't append cell.\n");
+        fprintf(stderr, "Row is NULL, can't append cell.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -83,7 +83,7 @@ void append_cell(row_t *row, cell_t *cell_to_append) {
 
 void append_row(table_t *table, row_t *row_to_append) {
     if (!table) {
-        printf("Table is NULL, can't append row.\n");
+        fprintf(stderr, "Table is NULL, can't append row.\n");
         exit(EXIT_FAILURE);
     }
     
@@ -124,7 +124,7 @@ char* row_type_to_string(int type) {
 
 void print_cell(cell_t *cell) {
     if (!cell) {
-        printf("Cell is NULL, can't print it.\n");
+        fprintf(stderr, "Cell is NULL, can't print it.\n");
         exit(EXIT_FAILURE);
     }
     print_cell_data(cell->data);
@@ -136,7 +136,7 @@ void print_cell_data(const data_t *cell_data) {
     } else if (cell_data->type == CELL_DATA_TYPE_DOUBLE) {
         printf("%e ", cell_data->value._double);
     } else {
-        printf("Cell of no type");
+        printf("? (cell of no type)");
     }
 }
 
@@ -152,9 +152,11 @@ void print_row(row_t *row) {
 
 void print_table(table_t *table) {
     if (!table) {
-        printf("Table is NULL, can't print it.\n");
+        fprintf(stderr, "Table is NULL, can't print it.\n");
         exit(EXIT_FAILURE);
     }
+
+    printf("\n\nLINES OF SPICE FILE:\n");
 
     row_t *row = table->rows;
     while (row) {
@@ -170,7 +172,7 @@ void clear_cell(cell_t* cell) {
 
 void clear_row(row_t* row) {
     if (!row) {
-        printf("Row is NULL, can't clear it.\n");
+        fprintf(stderr, "Row is NULL, can't clear it.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -189,7 +191,7 @@ void clear_row(row_t* row) {
 
 void clear_table(table_t* table) {
     if (!table) {
-        printf("Table is NULL, can't clear it.\n");
+        fprintf(stderr, "Table is NULL, can't clear it.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -204,7 +206,7 @@ void clear_table(table_t* table) {
 
 cell_t* get_cell(table_t* table, int row_index, int cell_index) {
     if (!table) {
-        printf("Table is NULL, can't get cell [%d][%d].\n", row_index, cell_index);
+        fprintf(stderr, "Table is NULL, can't get cell [%d][%d].\n", row_index, cell_index);
         exit(EXIT_FAILURE);
     }
 

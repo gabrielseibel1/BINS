@@ -14,6 +14,7 @@
 #include "table.h"
 
 EXTERNC int node_to_int(data_t* node);
+EXTERNC void print_node_map();
 EXTERNC void clear_node_map();
 
 #undef EXTERNC

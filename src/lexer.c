@@ -11,7 +11,7 @@
 table_t* lex(char *filename) {
     FILE* file_pointer = fopen(filename, "r");
     if (!file_pointer) {
-        printf("Can't open %s in r mode.\n", filename);
+        fprintf(stderr, "Can't open %s (tried \"r\" mode).\n", filename);
         exit(EXIT_FAILURE);
     }
 
@@ -43,8 +43,10 @@ table_t* lex(char *filename) {
             //each element between commas turns into a cell, appended to the row
             char* element;
             while ((element = strsep(&line, " \t\r\v\f"))) {
-                cell_t* cell = new_cell(new_cell_data(element));
-                append_cell(row, cell);
+                if (strcmp(element, "\0") != 0) {
+                    cell_t* cell = new_cell(new_cell_data(element));
+                    append_cell(row, cell);
+                }
             }
             //append filled row to table
             append_row(table, row);

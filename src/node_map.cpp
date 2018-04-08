@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <sstream>
+#include <iostream>
 
 std::map<std::string, int> node_map;
 int last_node_int;
@@ -37,6 +38,16 @@ int node_to_int(data_t* node) {
         int new_node = next_node_int();
         node_map.insert(std::make_pair(node_as_string, new_node));
         return new_node;
+    }
+}
+
+void print_node_map() {
+    std::cout << "\n\nNODE MAP:\n";
+
+    std::map<std::string, int>::iterator it = node_map.begin();
+    while (it != node_map.end()) {
+        std::cout << "ID: " << it->second << "\t\tLABEL: " << it->first << "\n";
+        ++it;
     }
 }
 

@@ -32,7 +32,7 @@ component_t* new_component(int type, char* label, const int nodes[MAX_NODES], da
 
 bool interpret_spice_table(table_t *spice_table) {
     if (!spice_table) {
-        printf("Table is NULL, can't interpret it.\n");
+        fprintf(stderr, "Table is NULL, can't interpret it.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -92,7 +92,7 @@ bool is_valid_component(row_t *spice_line, int node_count, int component_type) {
 
     for (int i = 0; i < node_count + 2 /*label + nodes + value*/; ++i) {
         if (!cell) {
-            printf("[Line %d] Not enough parameters for component!\n", spice_line->index + 1);
+            fprintf(stderr, "[Line %d] Not enough parameters for component!\n", spice_line->index + 1);
             return false;
         }
 
@@ -108,7 +108,7 @@ bool is_valid_component(row_t *spice_line, int node_count, int component_type) {
     }
 
     if (cell) {
-        printf("[Line %d] Too many parameters for component!\n", spice_line->index + 1);
+        fprintf(stderr, "[Line %d] Too many parameters for component!\n", spice_line->index + 1);
         return false;
     }
 
@@ -123,6 +123,11 @@ bool is_valid_component(row_t *spice_line, int node_count, int component_type) {
 }
 
 bool interpret_spice_row(row_t *spice_line) {
+    if (spice_line->index == 0) {
+        spice_line->type = TYPE_COMMENT;
+        return true;
+    }
+
     cell_t* first_cell = spice_line->cells;
     if (first_cell->data->type == CELL_DATA_TYPE_STRING) {
 
@@ -131,64 +136,66 @@ bool interpret_spice_row(row_t *spice_line) {
 
         switch (first_char) {
             case '*': //comment
-                printf("Comment\n");
+                //printf("Comment\n");
                 spice_line->type = TYPE_COMMENT;
                 return true; //any comment is valid
 
             case '.': //command
-                printf("Command\n");
+                //printf("Command\n");
                 //TODO validate inputs like .5, so that they don't get confused with 0.5
                 return is_valid_command(spice_line);
 
             case 'C': //Capacitor
-                printf("Capacitor\n");
+                //printf("Capacitor\n");
                 return is_valid_component(spice_line, 2, TYPE_C);
             case 'D': //Diode
-                printf("Diode\n");
+                //printf("Diode\n");
                 return is_valid_component(spice_line, 2, TYPE_D);
             case 'E': //VCVS - voltage controlled voltage source
-                printf("VCVS\n");
+                //printf("VCVS\n");
                 return is_valid_component(spice_line, 4, TYPE_E);
             case 'F': //CCCS - current controlled current source
-                printf("CCCS\n");
+                //printf("CCCS\n");
                 return is_valid_component(spice_line, 4, TYPE_F);
             case 'G': //VCCS - voltage controlled current source
-                printf("VCCS\n");
+                //printf("VCCS\n");
                 return is_valid_component(spice_line, 4, TYPE_G);
             case 'H': //CCVS - current controlled voltage source
-                printf("CCVS\n");
+                //printf("CCVS\n");
                 return is_valid_component(spice_line, 4, TYPE_H);
             case 'L': //Inductor
-                printf("Inductor\n");
+                //printf("Inductor\n");
                 return is_valid_component(spice_line, 2, TYPE_L);
             case 'M': //MOSFET -
-                printf("MOSFET\n");
+                //printf("MOSFET\n");
                 return is_valid_component(spice_line, 3, TYPE_M);
             case 'Q': //BJT - binary junction transistor
-                printf("BJT\n");
+                //printf("BJT\n");
                 return is_valid_component(spice_line, 3, TYPE_Q);
             case 'R': //Resistor
-                printf("Resistor\n");
+                //printf("Resistor\n");
                 return is_valid_component(spice_line, 2, TYPE_R);
             case 'V': //Source (voltage or current)
-                printf("Voltage or current source\n");
+                //printf("Voltage or current source\n");
                 return is_valid_component(spice_line, 2, TYPE_V);
 
             default:
-                printf("[Line %d] Unexpected '%c' as first character of line!\n", spice_line->index + 1, first_char);
+                fprintf(stderr, "[Line %d] Unexpected '%c' as first character of line!\n", spice_line->index + 1, first_char);
                 return false;
         }
     } else {
-        printf("[Line %d] Unexpected '%lf' starting the line!\n", spice_line->index + 1, first_cell->data->value._double);
+        fprintf(stderr, "[Line %d] Unexpected '%lf' starting the line!\n", spice_line->index + 1, first_cell->data->value._double);
         return false;
     }
 }
 
 void print_table_as_component_list(table_t* list_of_components) {
     if (!list_of_components) {
-        printf("Table is NULL, can't print it.\n");
+        fprintf(stderr, "Table is NULL, can't print it.\n");
         exit(EXIT_FAILURE);
     }
+
+    printf("\nCOMPONENTS:\n");
 
     row_t *row = list_of_components->rows;
     while (row) {
