@@ -5,9 +5,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "../include/interpreter.h"
 #include "../include/lexer.h"
 #include "../include/node_map.h"
+
+#define FEMTO -15
+#define PICO -12
+#define NANO -9
+#define MICRO -6
+#define MILLI -3
+#define KILO 3
+#define MEGA 6
+#define GIGA 9
+#define TERA 12
 
 component_t* new_component(int type, char* label, const int nodes[MAX_NODES], data_t* value) {
     component_t* component = (component_t*) malloc(sizeof(component_t));
@@ -41,6 +52,36 @@ bool is_valid_command(row_t *command) {
     return true;
 }
 
+void check_if_data_has_unit_prefix(data_t *data) {
+
+    if (data->type == CELL_DATA_TYPE_STRING) {
+
+        char* start_pt = data->value._string;
+        char* end_pt;
+        double double_data = strtod(data->value._string, &end_pt);
+
+        if (end_pt != NULL && *end_pt != '\0') {// raw_data contained something else after the double
+            int exponent = 0;
+
+            if      (strcmp(end_pt, "F") == 0) exponent = FEMTO;
+            else if (strcmp(end_pt, "P") == 0) exponent = PICO;
+            else if (strcmp(end_pt, "N") == 0) exponent = NANO;
+            else if (strcmp(end_pt, "U") == 0) exponent = MICRO;
+            else if (strcmp(end_pt, "M") == 0) exponent = MILLI;
+            else if (strcmp(end_pt, "K") == 0) exponent = KILO;
+            else if (strcmp(end_pt, "MEG")==0) exponent = MEGA;
+            else if (strcmp(end_pt, "G") == 0) exponent = GIGA;
+            else if (strcmp(end_pt, "T") == 0) exponent = TERA;
+
+            if (exponent != 0) { // found a prefix
+                data->type = CELL_DATA_TYPE_DOUBLE;
+                data->value._double = double_data * powf(10, exponent);
+                free(start_pt);
+            }
+        }
+    }
+}
+
 bool is_valid_component(row_t *spice_line, int node_count, int component_type) {
     cell_t* cell = spice_line->cells;
 
@@ -58,6 +99,7 @@ bool is_valid_component(row_t *spice_line, int node_count, int component_type) {
         if (i == 0) { //if its first cell, get label (just exclude first char, which represents component type)
             label = strdup(cell->data->value._string + 1);
         } else if (i == node_count + 1) { //last cell contains value
+            check_if_data_has_unit_prefix(cell->data);
             value = cell->data;
         } else { //the current cell is a node
             nodes[i - 1] = get_node_number(cell->data);
@@ -137,7 +179,7 @@ bool interpret_spice_row(row_t *spice_line) {
                 return false;
         }
     } else {
-        printf("[Line %d] Unexpected '%f' starting the line!\n", spice_line->index + 1, first_cell->data->value._float);
+        printf("[Line %d] Unexpected '%lf' starting the line!\n", spice_line->index + 1, first_cell->data->value._double);
         return false;
     }
 }

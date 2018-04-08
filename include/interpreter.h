@@ -27,6 +27,11 @@ bool interpret_spice_row(row_t *spice_line);
 bool is_valid_command(row_t *command);
 
 /**
+ * Takes a data_t* and checks if it need to be have itś value set to a float multiplied by a unit prefix
+ */
+void check_if_data_has_unit_prefix(data_t *data);
+
+/**
  * Checks if a t_row represents a valid component
  * @param spice_line row to be analysed
  * @param node_count number of expected "node" cells

@@ -10,7 +10,7 @@
 #include <string.h>
 
 #define CELL_DATA_TYPE_STRING 0
-#define CELL_DATA_TYPE_FLOAT 1
+#define CELL_DATA_TYPE_DOUBLE 1
 #define TYPE_COMMENT 0
 #define TYPE_COMMAND 1
 #define TYPE_C 2
@@ -30,7 +30,7 @@
 
 typedef union cell_data_value {
     char* _string;
-    float _float;
+    double _double;
 } cell_data_value_u;
 
 /**
@@ -118,7 +118,7 @@ void append_row(table_t *table, row_t *row_to_append);
 char* row_type_to_string(int type);
 
 /**
- * Prints t_cell_data as string or float depending on type
+ * Prints t_cell_data as string or double depending on type
  * @param cell
  */
 void print_cell_data(const data_t *cell);

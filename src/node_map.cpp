@@ -23,9 +23,9 @@ int node_to_int(data_t* node) {
 
     if (node->type == CELL_DATA_TYPE_STRING) {
         node_as_string.assign(node->value._string);
-    } else if (node->type == CELL_DATA_TYPE_FLOAT) {
+    } else if (node->type == CELL_DATA_TYPE_DOUBLE) {
         std::ostringstream buff;
-        buff << node->value._float;
+        buff << node->value._double;
         node_as_string = buff.str();
     }
 

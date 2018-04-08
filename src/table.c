@@ -12,9 +12,9 @@
 data_t* new_cell_data(char* raw_data) {
     data_t* typed_data = (data_t*) calloc(sizeof(data_t), 1);
 
-    //use strtof() to see if raw_data is purely a float, or just an alphanumerical string
+    //use strtod() to see if raw_data is purely a double, or just an alphanumerical string
 
-    /* QUOTE FROM STRTOF MANUAL: float strtof(const char *nptr, char **endptr);
+    /* QUOTE FROM strtod MANUAL: double strtod(const char *nptr, char **endptr);
      * If endptr is not NULL, a pointer to the character after the last  character
      * used  in  the conversion is stored in the location referenced by endptr.
      * If no conversion is performed, zero is returned and the value  of  nptr
@@ -22,17 +22,17 @@ data_t* new_cell_data(char* raw_data) {
      */
 
     char* end_pt;
-    float float_data = strtof(raw_data, &end_pt);
+    double double_data = strtod(raw_data, &end_pt);
 
-    if ((end_pt != NULL && *end_pt != '\0') // raw_data contained something else after the float
-        || (float_data == 0 && strlen(raw_data) == strlen(end_pt)) ) //no conversion performed
+    if ((end_pt != NULL && *end_pt != '\0') // raw_data contained something else after the double
+        || (double_data == 0 && strlen(raw_data) == strlen(end_pt)) ) //no conversion performed
     {
         typed_data->type = CELL_DATA_TYPE_STRING;
         typed_data->value._string = strdup(raw_data);
 
     } else {                                // conversion was performed successfully
-        typed_data->type= CELL_DATA_TYPE_FLOAT;
-        typed_data->value._float = float_data;
+        typed_data->type= CELL_DATA_TYPE_DOUBLE;
+        typed_data->value._double = double_data;
     }
 
     return typed_data;
@@ -133,8 +133,8 @@ void print_cell(cell_t *cell) {
 void print_cell_data(const data_t *cell_data) {
     if (cell_data->type == CELL_DATA_TYPE_STRING) {
         printf("\"%s\" ", cell_data->value._string);
-    } else if (cell_data->type == CELL_DATA_TYPE_FLOAT) {
-        printf("%f ", cell_data->value._float);
+    } else if (cell_data->type == CELL_DATA_TYPE_DOUBLE) {
+        printf("%e ", cell_data->value._double);
     } else {
         printf("Cell of no type");
     }
