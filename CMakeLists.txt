@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.9)
-project(PEPPER)
+project(BINS)
 
 set(CMAKE_C_STANDARD 99)
 
 add_executable(
-        PEPPER
+        BINS
         src/main.c
         src/lexer.c
         include/lexer.h

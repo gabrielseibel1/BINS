@@ -1,2 +1,3 @@
-# PEPPER
-A SPICE inspired circuit simulator.
+# BINS
+## BINS Is Not SPICE
+BINS is a SPICE-inspired circuit simulator.
