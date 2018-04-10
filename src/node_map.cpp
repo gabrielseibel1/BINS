@@ -20,6 +20,8 @@ int next_node_int() {
 
 int node_to_int(data_t* node) {
 
+    if (node_map.empty()) node_map.insert(std::make_pair("0", 0));
+
     std::string node_as_string;
 
     if (node->type == CELL_DATA_TYPE_STRING) {
