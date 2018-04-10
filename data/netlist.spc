@@ -4,7 +4,8 @@ R<resistorFirstLine>  <nó+> <nó-> <valor>
 R<res>  <nó+> <nó-> <valor>
 C<cap> <nóG>    <nó-> 10.3f
 L<ind> <nó+> <nó->      -27meg
-V<src> 468.68 <nó-> 15k
+I<Isrc> curNode+ curNode- .5
+V<Vsrc> 468.68 <nó-> 15k
 E<srcE> <nó+> <nó-> <nóC+> <nóC-> <valor>
 F<srcF> <nó+> 468.68 <nóC+> <nóC-> <valor>
 G<srcG> <nó+> <nó-> <nóC+> <nóC-> <valor>

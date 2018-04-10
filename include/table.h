@@ -19,11 +19,12 @@
 #define TYPE_F 5
 #define TYPE_G 6
 #define TYPE_H 7
-#define TYPE_L 8
-#define TYPE_M 9
-#define TYPE_Q 10
-#define TYPE_R 11
-#define TYPE_V 12
+#define TYPE_I 8
+#define TYPE_L 9
+#define TYPE_M 10
+#define TYPE_Q 11
+#define TYPE_R 12
+#define TYPE_V 13
 
 #define UNUSED_NODE (-1)
 #define MAX_NODES 4

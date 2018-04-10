@@ -105,19 +105,20 @@ void append_row(table_t *table, row_t *row_to_append) {
 
 char* row_type_to_string(int type) {
     switch (type) {
-        case TYPE_COMMENT: return "COMMENT  ";
-        case TYPE_COMMAND: return "COMMAND  ";
-        case TYPE_C: return "CAPACITOR";
-        case TYPE_D: return "DIODE    ";
-        case TYPE_E: return "VCVS     ";
-        case TYPE_F: return "CCCS     ";
-        case TYPE_G: return "VCCS     ";
-        case TYPE_H: return "CCVS     ";
-        case TYPE_L: return "INDUCTOR ";
-        case TYPE_M: return "MOSFET   ";
-        case TYPE_Q: return "BJT      ";
-        case TYPE_R: return "RESISTOR ";
-        case TYPE_V: return "SOURCE   ";
+        case TYPE_COMMENT:  return "COMMENT  ";
+        case TYPE_COMMAND:  return "COMMAND  ";
+        case TYPE_C:        return "CAPACITOR";
+        case TYPE_D:        return "DIODE    ";
+        case TYPE_E:        return "VCVS     ";
+        case TYPE_F:        return "CCCS     ";
+        case TYPE_G:        return "VCCS     ";
+        case TYPE_H:        return "CCVS     ";
+        case TYPE_I:        return "I-SOURCE ";
+        case TYPE_L:        return "INDUCTOR ";
+        case TYPE_M:        return "MOSFET   ";
+        case TYPE_Q:        return "BJT      ";
+        case TYPE_R:        return "RESISTOR ";
+        case TYPE_V:        return "V-SOURCE ";
         default:break;
     }
 }

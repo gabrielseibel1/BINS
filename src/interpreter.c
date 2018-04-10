@@ -163,10 +163,13 @@ bool interpret_spice_row(row_t *spice_line) {
             case 'H': //CCVS - current controlled voltage source
                 //printf("CCVS\n");
                 return is_valid_component(spice_line, 4, TYPE_H);
+            case 'I': //Current source
+                //printf("Current source"\n);
+                return is_valid_component(spice_line, 2, TYPE_I);
             case 'L': //Inductor
                 //printf("Inductor\n");
                 return is_valid_component(spice_line, 2, TYPE_L);
-            case 'M': //MOSFET -
+            case 'M': //MOSFET
                 //printf("MOSFET\n");
                 return is_valid_component(spice_line, 3, TYPE_M);
             case 'Q': //BJT - binary junction transistor
@@ -175,8 +178,8 @@ bool interpret_spice_row(row_t *spice_line) {
             case 'R': //Resistor
                 //printf("Resistor\n");
                 return is_valid_component(spice_line, 2, TYPE_R);
-            case 'V': //Source (voltage or current)
-                //printf("Voltage or current source\n");
+            case 'V': //V - Voltage source
+                //printf("Voltage source\n");
                 return is_valid_component(spice_line, 2, TYPE_V);
 
             default:
