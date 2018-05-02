@@ -7,7 +7,7 @@
 int main(int argc, char* argv[]) {
 
     if (argc != 2) {
-        printf("Too %s arguments for PEPPER. Expected 1 (filename), got %d.", (argc < 2) ? "few" : "many", argc - 1);
+        printf("Too %s arguments for BINS. Expected 1 (filename), got %d.", (argc < 2) ? "few" : "many", argc - 1);
         return -1;
     }
 
