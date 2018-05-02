@@ -14,4 +14,4 @@ add_executable(
         include/interpreter.h
         src/node_map.cpp
         include/node_map.h
-)
+        src/stamp.cpp src/stamp.h)
