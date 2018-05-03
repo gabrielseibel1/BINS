@@ -53,6 +53,7 @@ typedef struct cell {
 typedef struct component {
     int type;
     char* label;
+    int id;
     int nodes[MAX_NODES];
     data_t* value;
 } component_t;

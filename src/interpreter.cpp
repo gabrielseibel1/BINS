@@ -20,9 +20,12 @@
 #define GIGA 9
 #define TERA 12
 
+int component_count = 0;
+
 component_t* new_component(int type, char* label, const int nodes[MAX_NODES], data_t* value) {
     component_t* component = (component_t*) malloc(sizeof(component_t));
     component->type = type;
+    component->id = component_count++;
     component->label = label;
     for (int i = 0; i < MAX_NODES; ++i) {
         component->nodes[i] = nodes[i];
@@ -209,6 +212,7 @@ void print_table_as_component_list(table_t* list_of_components) {
 }
 void print_component(component_t* component) {
     printf("TYPE: %s\t\t", row_type_to_string(component->type));
+    printf("ID: %d\t\t", component->id);
     printf("LABEL: %s\t\t", component->label);
     for (int i = 0; i < MAX_NODES; ++i) {
         if (component->nodes[i] != UNUSED_NODE) printf("NODE%d:\t%d\t", i, component->nodes[i]);

@@ -1,17 +1,18 @@
 cmake_minimum_required(VERSION 3.9)
 project(BINS)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 11)
 
 add_executable(
         BINS
-        src/main.c
-        src/lexer.c
+        src/main.cpp
+        src/lexer.cpp
         include/lexer.h
-        src/table.c
+        src/table.cpp
         include/table.h
-        src/interpreter.c
+        src/interpreter.cpp
         include/interpreter.h
         src/node_map.cpp
         include/node_map.h
-        src/stamp.cpp src/stamp.h)
+        src/MatrixManager.cpp
+        include/MatrixManager.h)

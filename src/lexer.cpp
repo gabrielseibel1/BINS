@@ -21,7 +21,7 @@ table_t* lex(char *filename) {
     fseek(file_pointer, 0, SEEK_SET);
 
     //copy content to memory
-    char* file_content = calloc(size + 1, 1); //+1 for \0
+    char* file_content = (char *) calloc(size + 1, 1); //+1 for \0
     fread(file_content, size, 1, file_pointer);
     fclose(file_pointer);
 

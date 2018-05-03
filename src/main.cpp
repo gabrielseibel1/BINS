@@ -1,8 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
 #include "../include/interpreter.h"
 #include "../include/lexer.h"
 #include "../include/node_map.h"
+#include "../include/MatrixManager.h"
 
 int main(int argc, char* argv[]) {
 
@@ -32,6 +34,10 @@ int main(int argc, char* argv[]) {
     if (!valid) {
         printf("Found errors in %s, reported in stderr. Correct them and try again.\n", filename);
     }
+
+    auto *manager = new MatrixManager(3,4);
+    std::cout << *manager;
+    delete manager;
 
     return valid? 0 : 1;
 }
