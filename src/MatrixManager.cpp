@@ -14,6 +14,8 @@ MatrixManager::MatrixManager(size_t n_rows, size_t n_cols) : nRows(n_rows), nCol
     }
 }
 
+MatrixManager::~MatrixManager() = default;
+
 size_t MatrixManager::getNRows() const {
     return nRows;
 }
@@ -30,7 +32,7 @@ std::ostream &operator<<(std::ostream &os, const MatrixManager &manager) {
     for (int i = 0; i < manager.nRows; ++i) {
         os << "\t[ ";
         for (int j = 0; j < manager.nCols; ++j) {
-            os << manager.matrix[i][j] << ((j + 1  < manager.nCols) ? " " : "");
+            os << manager.matrix[i][j] << ((j + 1 < manager.nCols) ? " " : "");
         }
         os << " ]\n";
     }
@@ -38,5 +40,5 @@ std::ostream &operator<<(std::ostream &os, const MatrixManager &manager) {
     return os;
 }
 
-MatrixManager::~MatrixManager() = default;
+//MatrixManager::stamp()
 

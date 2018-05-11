@@ -1,9 +1,6 @@
 #include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include "../include/interpreter.h"
-#include "../include/lexer.h"
-#include "../include/node_map.h"
+#include "../include/SpiceInterpreter.h"
+#include "../include/SpiceReader.h"
 #include "../include/MatrixManager.h"
 
 int main(int argc, char* argv[]) {
@@ -16,28 +13,28 @@ int main(int argc, char* argv[]) {
     char* filename = argv[1];
 
     //read table
-    table_t* table_spc = lex(filename);
+    SpiceReader reader = SpiceReader(filename);
+    reader.read();
+    table_t* spiceTable = reader.getSpiceTable();
 
-    //validate table and pre-format it
-    bool valid = interpret_spice_table(table_spc);
+    //validate table and extract info from it
+    SpiceInterpreter interpreter = SpiceInterpreter(spiceTable);
+    interpreter.interpretSpiceTable();
+    bool valid = interpreter.isValidSpiceTable();
 
     if (valid) {
-        print_table(table_spc); printf("\n\n");
-        print_table_as_component_list(table_spc);
-        print_node_map();
+        print_table(spiceTable); printf("\n\n");
+        interpreter.printComponentList();
+        interpreter.printNodeMap();
     }
-
-    clear_table(table_spc);
-    free(table_spc);
-    clear_node_map();
 
     if (!valid) {
         printf("Found errors in %s, reported in stderr. Correct them and try again.\n", filename);
     }
 
-    auto *manager = new MatrixManager(3,4);
+    /*auto *manager = new MatrixManager(3,4);
     std::cout << *manager;
-    delete manager;
+    delete manager;*/
 
     return valid? 0 : 1;
 }

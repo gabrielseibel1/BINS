@@ -92,7 +92,7 @@ cell_t *new_cell(data_t* data);
  * Constructor for t_component. Builds component structure based on a table row
  * @param spice_line pointer to a t_row containing VALID component information
  */
-component_t* new_component(int type, char* label, const int nodes[MAX_NODES], data_t* value);
+component_t* newComponent(int type, char *label, const int *nodes, data_t *value);
 
 /**
  * Constructor for t_row. Accepts a NULL first_cell, if user wants to make an empty row.
@@ -134,7 +134,7 @@ void print_cell(cell_t *cell);
 /**
  * Prints a component
  */
-void print_component(component_t* component);
+void print_component(component_t component);
 
 /**
  * Prints all the cells of the row, evoking print_cell(cell, cell_number) for each.

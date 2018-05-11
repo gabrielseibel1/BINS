@@ -6,13 +6,13 @@ set(CMAKE_CXX_STANDARD 11)
 add_executable(
         BINS
         src/main.cpp
-        src/lexer.cpp
-        include/lexer.h
+        src/SpiceReader.cpp
+        include/SpiceReader.h
         src/table.cpp
         include/table.h
-        src/interpreter.cpp
-        include/interpreter.h
-        src/node_map.cpp
-        include/node_map.h
+        src/SpiceInterpreter.cpp
+        include/SpiceInterpreter.h
+        src/NodeMap.cpp
+        include/NodeMap.h
         src/MatrixManager.cpp
         include/MatrixManager.h)
