@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <iostream>
 #include "../include/SpiceInterpreter.h"
 #include "../include/SpiceReader.h"
 #include "../include/MatrixManager.h"
@@ -32,9 +33,10 @@ int main(int argc, char* argv[]) {
         printf("Found errors in %s, reported in stderr. Correct them and try again.\n", filename);
     }
 
-    /*auto *manager = new MatrixManager(3,4);
+    auto *manager = new MatrixManager(interpreter.getComponents().size());
     std::cout << *manager;
-    delete manager;*/
+    manager->requiredPrint();
+    delete manager;
 
     return valid? 0 : 1;
 }

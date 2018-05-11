@@ -2,24 +2,30 @@
 #define BINS_MATRIX_MANAGER_H
 
 #include <vector>
+#include "table.h"
 
 class MatrixManager {
     using Matrix = std::vector<std::vector<double> >;
+    using Vector = std::vector<double>;
 
 private:
-    Matrix matrix;
-    size_t nRows;
-    size_t nCols;
+    Matrix H;
+    std::vector<double> x;
+    std::vector<double> b;
+    size_t size;
+
 
 public:
-    MatrixManager(size_t n_rows, size_t n_cols);
+    MatrixManager(size_t size);
 
     virtual ~MatrixManager();
 
-    size_t getNRows() const;
-
-    size_t getNCols() const;
+    size_t getSize() const;
 
     friend std::ostream &operator<<(std::ostream &os, const MatrixManager &manager);
+
+    void stamp(component_t component);
+
+    void requiredPrint();
 };
 #endif //BINS_MATRIX_MANAGER_H
