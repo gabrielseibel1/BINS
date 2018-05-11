@@ -51,11 +51,11 @@ void MatrixManager::requiredPrint() {
     }
     printf("\n\n");
     for (int j = 0; j < size; ++j) {
-        printf("x(%d) = %lf\n", j, x[j]);
+        printf("x[%d] = %lf\n", j, x[j]);
     }
     printf("\n\n");
     for (int j = 0; j < size; ++j) {
-        printf("b(%d) = %lf\n", j, b[j]);
+        printf("b[%d] = %lf\n", j, b[j]);
     }
 }
 
