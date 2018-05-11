@@ -33,10 +33,9 @@ int main(int argc, char* argv[]) {
         printf("Found errors in %s, reported in stderr. Correct them and try again.\n", filename);
     }
 
-    auto *manager = new MatrixManager(interpreter.getComponents().size());
-    std::cout << *manager;
-    manager->requiredPrint();
-    delete manager;
+    auto manager = MatrixManager(interpreter.getComponents().size());
+    std::cout << manager;
+    manager.requiredPrint();
 
     return valid? 0 : 1;
 }
