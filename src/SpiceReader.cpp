@@ -61,11 +61,10 @@ void SpiceReader::read() {
 }
 
 SpiceReader::SpiceReader(char *filename) : filename(filename) {
-    spiceTable = new_table(nullptr);
+    spiceTable = nullptr;
 }
 
 SpiceReader::~SpiceReader() {
-    free(filename);
     clear_table(spiceTable);
     free(spiceTable);
 }
