@@ -15,6 +15,7 @@ MatrixManager::MatrixManager(size_t size) : size(size) {
     }
     x = std::vector<double>(size);
     b = std::vector<double>(size);
+    p = std::vector<double>(size);
 }
 
 MatrixManager::~MatrixManager() = default;
@@ -39,6 +40,11 @@ std::ostream &operator<<(std::ostream &os, const MatrixManager &manager) {
         os << manager.b[j] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
     }
     os << " ]\n";
+    os << "\n\tp (" << manager.size << ", 1) = \n\t[ ";
+    for (int j = 0; j < manager.size; ++j) {
+        os << manager.p[j] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
+    }
+    os << " ]\n";
     return os;
 }
 
@@ -56,6 +62,10 @@ void MatrixManager::requiredPrint() {
     printf("\n\n");
     for (int j = 0; j < size; ++j) {
         printf("b[%d] = %lf\n", j, b[j]);
+    }
+    printf("\n\n");
+    for (int j = 0; j < size; ++j) {
+        printf("p[%d] = %lf\n", j, b[j]);
     }
 }
 

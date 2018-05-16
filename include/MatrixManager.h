@@ -12,6 +12,7 @@ private:
     Matrix H;
     std::vector<double> x;
     std::vector<double> b;
+    std::vector<double> p;
     size_t size;
 
 
