@@ -21,11 +21,11 @@ void SpiceReader::read() {
 
     //calculate file size
     fseek(file_pointer, 0, SEEK_END);
-    size_t size = (size_t) ftell(file_pointer);
+    auto size = (size_t) ftell(file_pointer);
     fseek(file_pointer, 0, SEEK_SET);
 
     //copy content to memory
-    char *file_content = (char *) calloc(size + 1, 1); //+1 for \0
+    auto *file_content = (char *) calloc(size + 1, 1); //+1 for \0
     fread(file_content, size, 1, file_pointer);
     fclose(file_pointer);
 
