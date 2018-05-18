@@ -6,7 +6,7 @@
 
 int main(int argc, char* argv[]) {
 
-    if (argc != 2) {
+    /*if (argc != 2) {
         printf("Too %s arguments for BINS. Expected 1 (filename), got %d.", (argc < 2) ? "few" : "many", argc - 1);
         return -1;
     }
@@ -33,9 +33,14 @@ int main(int argc, char* argv[]) {
         printf("Found errors in %s, reported in stderr. Correct them and try again.\n", filename);
     }
 
-    auto manager = MatrixManager(interpreter.getComponents().size());
-    std::cout << manager;
-    manager.requiredPrint();
+    auto manager = MatrixManager(interpreter.getComponents().size());*/
 
-    return valid? 0 : 1;
+    auto manager = MatrixManager(3);
+    manager.buildMatricesFromStdIn();
+    std::cout << manager;
+    manager.solve();
+    std::cout << manager;
+    //manager.requiredPrint();
+
+    return /*valid? 0 : 1*/0;
 }
