@@ -91,14 +91,13 @@ void MatrixManager::forwardSubstitution(Matrix *L, Vector *y, Vector *z) {
         for (int j = 0; j <= k - 1; ++j) {
             (*y)[k] -= (*L)[k][j] * (*y)[j];
         }
-        (*y)[k] /= (*L)[k][k];
+        //(*y)[k] /= (*L)[k][k];
     }
 }
 
 void MatrixManager::backwardSubstitution(Matrix *U, Vector *x, Vector *y) {
     for (int k = (int) size - 1; k >= 0; --k) {
         (*x)[k] = (*y)[k];
-        //std::cout << "x[" << k << "] == " << (*x)[k] << "\n";
         for (int j = k + 1; j < size; ++j) {
             (*x)[k] -= (*U)[k][j] * (*x)[j];
         }
