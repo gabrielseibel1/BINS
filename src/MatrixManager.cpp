@@ -132,7 +132,7 @@ void MatrixManager::buildMatricesFromStdIn() {
 void MatrixManager::stamp(component_t component) {
     int index = component.id;
     switch (component.type) {
-
+        default: printf("Stamp %s in %d", row_type_to_string(component.type), index);
     }
 }
 
@@ -164,4 +164,8 @@ void MatrixManager::permutate(int line1, int line2) {
         std::cout << "p[" << pLine1 << "] = " << pLine2 << "\n";
         std::cout << "p[" << pLine2 << "] = " << pLine1 << "\n";
     }
+}
+
+void MatrixManager::stamp(std::vector<component_t> components) {
+    for (auto component : components) { stamp(component); }
 }

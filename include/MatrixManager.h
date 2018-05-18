@@ -2,7 +2,7 @@
 #define BINS_MATRIX_MANAGER_H
 
 #include <vector>
-#include "table.h"
+#include "SpiceInterpreter.h"
 
 #define HP(i, j) H [p[i]] [j]
 #define xP(i) x [p[i]]
@@ -19,9 +19,20 @@ private:
     std::vector<int> p;
     size_t size;
 
+    void stamp(component_t component);
+
+    void permutate(int k, int line);
+
+    int lineWithLargestPivot(int k);
+
+    void backwardSubstitution(Matrix *U, Vector *x, Vector *y);
+
+    void forwardSubstitution(Matrix *L, Vector *y, Vector *z);
+
+    void LUGEPP(Matrix *A);
 
 public:
-    MatrixManager(size_t size);
+    explicit MatrixManager(size_t size);
 
     virtual ~MatrixManager();
 
@@ -29,22 +40,12 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const MatrixManager &manager);
 
-    void stamp(component_t component);
-
     void requiredPrint();
-
-    int lineWithLargestPivot(int k);
-
-    void permutate(int k, int line);
 
     void buildMatricesFromStdIn();
 
+    void stamp(std::vector<component_t> components);
+
     void solve();
-
-    void backwardSubstitution(Matrix *U, Vector *x, Vector *y);
-
-    void forwardSubstitution(Matrix *L, Vector *y, Vector *z);
-
-    void LUGEPP(Matrix *A);
 };
 #endif //BINS_MATRIX_MANAGER_H

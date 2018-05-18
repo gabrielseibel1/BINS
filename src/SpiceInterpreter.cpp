@@ -1,6 +1,5 @@
 /**
  * Interprets table_t to parse components, comments and commands
- * Can populate "component" members of row_t
  */
 
 #include <stdio.h>
@@ -10,25 +9,16 @@
 #include "../include/SpiceInterpreter.h"
 #include "../include/NodeMap.h"
 
-#define FEMTO -15
-#define PICO -12
-#define NANO -9
-#define MICRO -6
-#define MILLI -3
-#define KILO 3
-#define MEGA 6
-#define GIGA 9
-#define TERA 12
-
 int componentCount = 0;
 
 SpiceInterpreter::SpiceInterpreter(table_t *spiceTable) : spiceTable(spiceTable) {
     validSpiceTable = false;
 }
 
-component_t *newComponent(int type, char *label, const int *nodes, data_t *value) {
+component_t *SpiceInterpreter::newComponent(RowType type, char *label, const int *nodes, data_t *value) {
     auto *component = (component_t *) malloc(sizeof(component_t));
     component->type = type;
+    setPreliminarGroup(component);
     component->id = componentCount++;
     component->label = label;
     for (int i = 0; i < MAX_NODES; ++i) {
@@ -37,9 +27,27 @@ component_t *newComponent(int type, char *label, const int *nodes, data_t *value
     component->value = value;
 }
 
+void SpiceInterpreter::setPreliminarGroup(component_t *component) {
+    switch (component->type) {
+        case CMD: case CMT: exit(EXIT_FAILURE);
+        case C: component->group = GROUP1; break;
+        case D: component->group = GROUP1; break;
+        case E: component->group = GROUP2; break;
+        case F: component->group = GROUP1; break;
+        case G: component->group = GROUP1; break;
+        case H: component->group = GROUP2; break;
+        case I: component->group = GROUP1; break;
+        case L: component->group = GROUP1; break;
+        case M: component->group = GROUP1; break;
+        case Q: component->group = GROUP1; break;
+        case R: component->group = GROUP1; break;
+        case V: component->group = GROUP2; break;
+    }
+}
+
 void SpiceInterpreter::interpretSpiceTable() {
     if (!spiceTable) {
-        fprintf(stderr, "Table is NULL, can't interpret it.\n");
+        fprintf(stderr, "Table is nullptr, can't interpret it.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -53,7 +61,7 @@ void SpiceInterpreter::interpretSpiceTable() {
 }
 
 bool SpiceInterpreter::isValidCommand(row_t *command) {
-    command->type = TYPE_COMMAND;
+    command->type = CMD;
     return true;
 }
 
@@ -65,18 +73,18 @@ void SpiceInterpreter::checkIfDataHasUnitPrefix(data_t *data) {
         char *end_pt;
         double double_data = strtod(data->value._string, &end_pt);
 
-        if (end_pt != NULL && *end_pt != '\0') {// raw_data contained something else after the double
+        if (end_pt != nullptr && *end_pt != '\0') {// raw_data contained something else after the double
             int exponent = 0;
 
-            if (strcmp(end_pt, "F") == 0) exponent = FEMTO;
-            else if (strcmp(end_pt, "P") == 0) exponent = PICO;
-            else if (strcmp(end_pt, "N") == 0) exponent = NANO;
-            else if (strcmp(end_pt, "U") == 0) exponent = MICRO;
-            else if (strcmp(end_pt, "M") == 0) exponent = MILLI;
-            else if (strcmp(end_pt, "K") == 0) exponent = KILO;
-            else if (strcmp(end_pt, "MEG") == 0) exponent = MEGA;
-            else if (strcmp(end_pt, "G") == 0) exponent = GIGA;
-            else if (strcmp(end_pt, "T") == 0) exponent = TERA;
+            if (strcmp(end_pt, "F") == 0)           exponent = FEMTO;
+            else if (strcmp(end_pt, "P") == 0)      exponent = PICO;
+            else if (strcmp(end_pt, "N") == 0)      exponent = NANO;
+            else if (strcmp(end_pt, "U") == 0)      exponent = MICRO;
+            else if (strcmp(end_pt, "M") == 0)      exponent = MILLI;
+            else if (strcmp(end_pt, "K") == 0)      exponent = KILO;
+            else if (strcmp(end_pt, "MEG") == 0)    exponent = MEGA;
+            else if (strcmp(end_pt, "G") == 0)      exponent = GIGA;
+            else if (strcmp(end_pt, "T") == 0)      exponent = TERA;
 
             if (exponent != 0) { // found a prefix
                 data->type = CELL_DATA_TYPE_DOUBLE;
@@ -87,13 +95,13 @@ void SpiceInterpreter::checkIfDataHasUnitPrefix(data_t *data) {
     }
 }
 
-bool SpiceInterpreter::isValidComponent(row_t *spice_line, int node_count, int component_type) {
+bool SpiceInterpreter::isValidComponent(row_t *spice_line, int node_count, RowType component_type) {
     cell_t *cell = spice_line->cells;
 
     //parameters to be parsed so a component_t can be constructed
     char *label = const_cast<char *>("\0");
     int nodes[MAX_NODES] = {UNUSED_NODE, UNUSED_NODE, UNUSED_NODE, UNUSED_NODE};
-    data_t *value = NULL;
+    data_t *value = nullptr;
 
     for (int i = 0; i < node_count + 2 /*label + nodes + value*/; ++i) {
         if (!cell) {
@@ -119,7 +127,6 @@ bool SpiceInterpreter::isValidComponent(row_t *spice_line, int node_count, int c
 
     component_t *component= newComponent(component_type, label, nodes, value);
     spice_line->type = component_type;
-    spice_line->component = component;
     components.insert(components.end(), *component);
 
     return true;
@@ -127,7 +134,7 @@ bool SpiceInterpreter::isValidComponent(row_t *spice_line, int node_count, int c
 
 bool SpiceInterpreter::interpretSpiceRow(row_t *spice_line) {
     if (spice_line->index == 0) {
-        spice_line->type = TYPE_COMMENT;
+        spice_line->type = CMT;
         return true;
     }
 
@@ -139,51 +146,37 @@ bool SpiceInterpreter::interpretSpiceRow(row_t *spice_line) {
 
         switch (first_char) {
             case '*': //comment
-                //printf("Comment\n");
-                spice_line->type = TYPE_COMMENT;
+                spice_line->type = CMT;
                 return true; //any comment is valid
 
             case '.': //command
-                //printf("Command\n");
                 //TODO validate inputs like .5, so that they don't get confused with 0.5
                 return isValidCommand(spice_line);
 
             case 'C': //Capacitor
-                //printf("Capacitor\n");
-                return isValidComponent(spice_line, 2, TYPE_C);
+                return isValidComponent(spice_line, 2, C);
             case 'D': //Diode
-                //printf("Diode\n");
-                return isValidComponent(spice_line, 2, TYPE_D);
+                return isValidComponent(spice_line, 2, D);
             case 'E': //VCVS - voltage controlled voltage source
-                //printf("VCVS\n");
-                return isValidComponent(spice_line, 4, TYPE_E);
+                return isValidComponent(spice_line, 4, E);
             case 'F': //CCCS - current controlled current source
-                //printf("CCCS\n");
-                return isValidComponent(spice_line, 4, TYPE_F);
+                return isValidComponent(spice_line, 4, F);
             case 'G': //VCCS - voltage controlled current source
-                //printf("VCCS\n");
-                return isValidComponent(spice_line, 4, TYPE_G);
+                return isValidComponent(spice_line, 4, G);
             case 'H': //CCVS - current controlled voltage source
-                //printf("CCVS\n");
-                return isValidComponent(spice_line, 4, TYPE_H);
+                return isValidComponent(spice_line, 4, H);
             case 'I': //Current source
-                //printf("Current source"\n);
-                return isValidComponent(spice_line, 2, TYPE_I);
+                return isValidComponent(spice_line, 2, I);
             case 'L': //Inductor
-                //printf("Inductor\n");
-                return isValidComponent(spice_line, 2, TYPE_L);
+                return isValidComponent(spice_line, 2, L);
             case 'M': //MOSFET
-                //printf("MOSFET\n");
-                return isValidComponent(spice_line, 3, TYPE_M);
+                return isValidComponent(spice_line, 3, M);
             case 'Q': //BJT - binary junction transistor
-                //printf("BJT\n");
-                return isValidComponent(spice_line, 3, TYPE_Q);
+                return isValidComponent(spice_line, 3, Q);
             case 'R': //Resistor
-                //printf("Resistor\n");
-                return isValidComponent(spice_line, 2, TYPE_R);
+                return isValidComponent(spice_line, 2, R);
             case 'V': //V - Voltage source
-                //printf("Voltage source\n");
-                return isValidComponent(spice_line, 2, TYPE_V);
+                return isValidComponent(spice_line, 2, V);
 
             default:
                 fprintf(stderr, "[Line %d] Unexpected '%c' as first character of line!\n", spice_line->index + 1,
@@ -195,19 +188,6 @@ bool SpiceInterpreter::interpretSpiceRow(row_t *spice_line) {
                 first_cell->data->value._double);
         return false;
     }
-}
-
-
-void SpiceInterpreter::printComponent(component_t component) {
-    printf("TYPE: %s\t\t", row_type_to_string(component.type));
-    printf("ID: %d\t\t", component.id);
-    printf("LABEL: %s\t\t", component.label);
-    for (int i = 0; i < MAX_NODES; ++i) {
-        if (component.nodes[i] != UNUSED_NODE) printf("NODE%d:\t%d\t", i, component.nodes[i]);
-    }
-    printf("VALUE: ");
-    print_cell_data(component.value);
-    printf("\n");
 }
 
 void SpiceInterpreter::printComponentList() {
@@ -238,4 +218,15 @@ void SpiceInterpreter::printNodeMap() {
     std::cout << nodeMap;
 }
 
-
+void SpiceInterpreter::printComponent(component_t component) {
+    printf("TYPE: %s\t\t", row_type_to_string(component.type));
+    printf("GROUP: %d\t\t", component.group);
+    printf("ID: %d\t\t", component.id);
+    printf("LABEL: %s\t\t", component.label);
+    for (int i = 0; i < MAX_NODES; ++i) {
+        if (component.nodes[i] != UNUSED_NODE) printf("NODE%d:\t%d\t", i, component.nodes[i]);
+    }
+    printf("VALUE: ");
+    print_cell_data(component.value);
+    printf("\n");
+}

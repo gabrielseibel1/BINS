@@ -10,12 +10,12 @@
 #include "../include/table.h"
 
 data_t* new_cell_data(char* raw_data) {
-    data_t* typed_data = (data_t*) calloc(sizeof(data_t), 1);
+    auto * typed_data = (data_t*) calloc(sizeof(data_t), 1);
 
     //use strtod() to see if raw_data is purely a double, or just an alphanumerical string
 
     /* QUOTE FROM strtod MANUAL: double strtod(const char *nptr, char **endptr);
-     * If endptr is not NULL, a pointer to the character after the last  character
+     * If endptr is not nullptr, a pointer to the character after the last  character
      * used  in  the conversion is stored in the location referenced by endptr.
      * If no conversion is performed, zero is returned and the value  of  nptr
      * is stored in the location referenced by endptr.
@@ -24,7 +24,7 @@ data_t* new_cell_data(char* raw_data) {
     char* end_pt;
     double double_data = strtod(raw_data, &end_pt);
 
-    if ((end_pt != NULL && *end_pt != '\0') // raw_data contained something else after the double
+    if ((end_pt != nullptr && *end_pt != '\0') // raw_data contained something else after the double
         || (double_data == 0 && strlen(raw_data) == strlen(end_pt)) ) //no conversion performed
     {
         typed_data->type = CELL_DATA_TYPE_STRING;
@@ -39,30 +39,29 @@ data_t* new_cell_data(char* raw_data) {
 }
 
 cell_t* new_cell(data_t* data) {
-    cell_t *cell = (cell_t *) malloc(sizeof(cell_t));
+    auto *cell = (cell_t *) malloc(sizeof(cell_t));
     cell->data = data;
-    cell->next_cell = NULL;
+    cell->next_cell = nullptr;
     return cell;
 }
 
 row_t *new_row(cell_t *first_cell) {
-    row_t *row = (row_t *) malloc(sizeof(row_t));
+    auto *row = (row_t *) malloc(sizeof(row_t));
     row->cells = first_cell;
     row->index = 0;
-    row->component = NULL;
-    row->next_row = NULL;
+    row->next_row = nullptr;
     return row;
 }
 
 table_t *new_table(row_t *first_row) {
-    table_t *table = (table_t *) malloc(sizeof(table_t));
+    auto *table = (table_t *) malloc(sizeof(table_t));
     table->rows = first_row;
     return table;
 }
 
 void append_cell(row_t *row, cell_t *cell_to_append) {
     if (!row) {
-        fprintf(stderr, "Row is NULL, can't append cell.\n");
+        fprintf(stderr, "Row is nullptr, can't append cell.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -83,12 +82,12 @@ void append_cell(row_t *row, cell_t *cell_to_append) {
 
 void append_row(table_t *table, row_t *row_to_append) {
     if (!table) {
-        fprintf(stderr, "Table is NULL, can't append row.\n");
+        fprintf(stderr, "Table is nullptr, can't append row.\n");
         exit(EXIT_FAILURE);
     }
     
     //if there are no rows, append as first one
-    if (table->rows == NULL) {
+    if (table->rows == nullptr) {
         table->rows = row_to_append;
         return;
     }
@@ -103,29 +102,9 @@ void append_row(table_t *table, row_t *row_to_append) {
     row_to_append->index = current_row->index + 1;
 }
 
-char* row_type_to_string(int type) {
-    switch (type) {
-        case TYPE_COMMENT:  return "COMMENT  ";
-        case TYPE_COMMAND:  return "COMMAND  ";
-        case TYPE_C:        return "CAPACITOR";
-        case TYPE_D:        return "DIODE    ";
-        case TYPE_E:        return "VCVS     ";
-        case TYPE_F:        return "CCCS     ";
-        case TYPE_G:        return "VCCS     ";
-        case TYPE_H:        return "CCVS     ";
-        case TYPE_I:        return "I-SOURCE ";
-        case TYPE_L:        return "INDUCTOR ";
-        case TYPE_M:        return "MOSFET   ";
-        case TYPE_Q:        return "BJT      ";
-        case TYPE_R:        return "RESISTOR ";
-        case TYPE_V:        return "V-SOURCE ";
-        default:break;
-    }
-}
-
 void print_cell(cell_t *cell) {
     if (!cell) {
-        fprintf(stderr, "Cell is NULL, can't print it.\n");
+        fprintf(stderr, "Cell is nullptr, can't print it.\n");
         exit(EXIT_FAILURE);
     }
     print_cell_data(cell->data);
@@ -153,7 +132,7 @@ void print_row(row_t *row) {
 
 void print_table(table_t *table) {
     if (!table) {
-        fprintf(stderr, "Table is NULL, can't print it.\n");
+        fprintf(stderr, "Table is nullptr, can't print it.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -173,7 +152,7 @@ void clear_cell(cell_t* cell) {
 
 void clear_row(row_t* row) {
     if (!row) {
-        fprintf(stderr, "Row is NULL, can't clear it.\n");
+        fprintf(stderr, "Row is nullptr, can't clear it.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -184,15 +163,11 @@ void clear_row(row_t* row) {
         free(cell);
         cell = next_cell;
     }
-    if (row->component) {
-        free(row->component->label);
-        free(row->component);
-    }
 }
 
 void clear_table(table_t* table) {
     if (!table) {
-        fprintf(stderr, "Table is NULL, can't clear it.\n");
+        fprintf(stderr, "Table is nullptr, can't clear it.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -207,33 +182,33 @@ void clear_table(table_t* table) {
 
 cell_t* get_cell(table_t* table, int row_index, int cell_index) {
     if (!table) {
-        fprintf(stderr, "Table is NULL, can't get cell [%d][%d].\n", row_index, cell_index);
+        fprintf(stderr, "Table is nullptr, can't get cell [%d][%d].\n", row_index, cell_index);
         exit(EXIT_FAILURE);
     }
 
     //find row
     row_t* row = table->rows;
     for (int i = 0; i < row_index; ++i) {
-        if (!row) return NULL;
+        if (!row) return nullptr;
         row = row->next_row;
     }
-    if (!row) return NULL;
+    if (!row) return nullptr;
 
     //find cell
     cell_t* cell = row->cells;
     for (int j = 0; j < cell_index; ++j) {
-        if (!cell) return NULL;
+        if (!cell) return nullptr;
         cell = cell->next_cell;
     }
-    if (!cell) return NULL;
+    if (!cell) return nullptr;
 
     return cell;
 }
 
 int table_test() {
-    table_t *table = new_table(NULL);
+    table_t *table = new_table(nullptr);
     for (int i = 0; i < 5; ++i) {
-        row_t* row = new_row(NULL);
+        row_t* row = new_row(nullptr);
         for (int j = 0; j < 3; ++j) {
             char string[2];
             sprintf(string, "%d", j);
@@ -259,4 +234,24 @@ int table_test() {
     free(table);
 
     return 0;
+}
+
+const char *row_type_to_string(RowType type) {
+    switch (type) {
+        case CMT:   return "COMMENT  ";
+        case CMD:   return "COMMAND  ";
+        case C:     return "CAPACITOR";
+        case D:     return "DIODE    ";
+        case E:     return "VCVS     ";
+        case F:     return "CCCS     ";
+        case G:     return "VCCS     ";
+        case H:     return "CCVS     ";
+        case I:     return "I-SOURCE ";
+        case L:     return "INDUCTOR ";
+        case M:     return "MOSFET   ";
+        case Q:     return "BJT      ";
+        case R:     return "RESISTOR ";
+        case V:     return "V-SOURCE ";
+        default:break;
+    }
 }

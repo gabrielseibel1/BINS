@@ -4,27 +4,30 @@
  * Defines structs, constructors, insertions, accesses (getter), printing and clearing for the data structures.
  */
 
-#ifndef PEPPER_TABLE_H
-#define PEPPER_TABLE_H
+#ifndef BINS_TABLE_H
+#define BINS_TABLE_H
 
 #include <string.h>
 
+enum RowType {
+    /** COMMAND */ CMD,
+    /** COMMENT */ CMT,
+    /** CAPACITOR */ C,
+    /** DIODE     */ D,
+    /** VCVS      */ E,
+    /** CCCS      */ F,
+    /** VCCS      */ G,
+    /** CCVS      */ H,
+    /** CUR SOURCE*/ I,
+    /** INDUCTOR  */ L,
+    /** MOSFET    */ M,
+    /** BJT       */ Q,
+    /** RESISTOR  */ R,
+    /** VOL SOURCE*/ V
+};
+
 #define CELL_DATA_TYPE_STRING 0
 #define CELL_DATA_TYPE_DOUBLE 1
-#define TYPE_COMMENT 0
-#define TYPE_COMMAND 1
-#define TYPE_C 2
-#define TYPE_D 3
-#define TYPE_E 4
-#define TYPE_F 5
-#define TYPE_G 6
-#define TYPE_H 7
-#define TYPE_I 8
-#define TYPE_L 9
-#define TYPE_M 10
-#define TYPE_Q 11
-#define TYPE_R 12
-#define TYPE_V 13
 
 #define UNUSED_NODE (-1)
 #define MAX_NODES 4
@@ -50,22 +53,13 @@ typedef struct cell {
     struct cell *next_cell;
 } cell_t;
 
-typedef struct component {
-    int type;
-    char* label;
-    int id;
-    int nodes[MAX_NODES];
-    data_t* value;
-} component_t;
-
 /**
  * Represents a row with a list of cells and a pointer to the next row of the table
  */
 typedef struct row {
-    int type;
+    RowType type;
     int index;
     cell_t *cells;
-    component_t* component;
     struct row *next_row;
 } row_t;
 
@@ -89,12 +83,6 @@ data_t* new_cell_data(char* raw_data);
 cell_t *new_cell(data_t* data);
 
 /**
- * Constructor for t_component. Builds component structure based on a table row
- * @param spice_line pointer to a t_row containing VALID component information
- */
-component_t* newComponent(int type, char *label, const int *nodes, data_t *value);
-
-/**
  * Constructor for t_row. Accepts a NULL first_cell, if user wants to make an empty row.
  */
 row_t *new_row(cell_t *first_cell);
@@ -115,11 +103,6 @@ void append_cell(row_t *row, cell_t *cell_to_append);
 void append_row(table_t *table, row_t *row_to_append);
 
 /**
- * Gets string for type of row (component(s), command and comment)
- */
-char* row_type_to_string(int type);
-
-/**
  * Prints t_cell_data as string or double depending on type
  * @param cell
  */
@@ -130,11 +113,6 @@ void print_cell_data(const data_t *cell);
  * @param cell_index is the index of the cell in it's row
  */
 void print_cell(cell_t *cell);
-
-/**
- * Prints a component
- */
-void print_component(component_t component);
 
 /**
  * Prints all the cells of the row, evoking print_cell(cell, cell_number) for each.
@@ -175,4 +153,9 @@ void clear_table(table_t* table);
  */
 cell_t* get_cell(table_t* table, int row_index, int cell_index);
 
-#endif //PEPPER_TABLE_H
+/**
+ * Gets string for type of row (component(s), command and comment)
+ */
+const char *row_type_to_string(RowType type);
+
+#endif //BINS_TABLE_H
