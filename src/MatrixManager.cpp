@@ -131,7 +131,7 @@ void MatrixManager::buildMatricesFromStdIn() {
 void MatrixManager::stamp(component_t component) {
     int index = component.id;
     switch (component.type) {
-        default: printf("Stamp %s in %d", row_type_to_string(component.type), index);
+        default: printf("Stamp %s in %d\n", row_type_to_string(component.type), index);
     }
 }
 

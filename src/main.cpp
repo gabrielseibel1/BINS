@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
     std::cout << manager;
     manager.solve();
     std::cout << manager;
+    manager.stamp(interpreter.getComponents());
     //manager.requiredPrint();
 
     return valid? 0 : 1;
