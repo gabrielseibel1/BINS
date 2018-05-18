@@ -40,5 +40,5 @@ int main(int argc, char* argv[]) {
     std::cout << manager;
     //manager.requiredPrint();
 
-    return valid? 0 : 10;
+    return valid? 0 : 1;
 }
