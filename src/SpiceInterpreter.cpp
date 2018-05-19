@@ -65,7 +65,7 @@ void SpiceInterpreter::checkIfDataHasUnitPrefix(data_t *data) {
     }
 }
 
-bool SpiceInterpreter::isValidComponent(row_t *spice_line, int node_count, RowType component_type) {
+bool SpiceInterpreter::validateAndSaveComponent(row_t *spice_line, int node_count, RowType component_type) {
     cell_t *cell = spice_line->cells;
 
     //parameters to be parsed so a component_t can be constructed
@@ -125,29 +125,29 @@ bool SpiceInterpreter::interpretSpiceRow(row_t *spice_line) {
                 return isValidCommand(spice_line);
 
             case 'C': //Capacitor
-                return isValidComponent(spice_line, 2, C);
+                return validateAndSaveComponent(spice_line, 2, C);
             case 'D': //Diode
-                return isValidComponent(spice_line, 2, D);
+                return validateAndSaveComponent(spice_line, 2, D);
             case 'E': //VCVS - voltage controlled voltage source
-                return isValidComponent(spice_line, 4, E);
+                return validateAndSaveComponent(spice_line, 4, E);
             case 'F': //CCCS - current controlled current source
-                return isValidComponent(spice_line, 4, F);
+                return validateAndSaveComponent(spice_line, 4, F);
             case 'G': //VCCS - voltage controlled current source
-                return isValidComponent(spice_line, 4, G);
+                return validateAndSaveComponent(spice_line, 4, G);
             case 'H': //CCVS - current controlled voltage source
-                return isValidComponent(spice_line, 4, H);
+                return validateAndSaveComponent(spice_line, 4, H);
             case 'I': //Current source
-                return isValidComponent(spice_line, 2, I);
+                return validateAndSaveComponent(spice_line, 2, I);
             case 'L': //Inductor
-                return isValidComponent(spice_line, 2, L);
+                return validateAndSaveComponent(spice_line, 2, L);
             case 'M': //MOSFET
-                return isValidComponent(spice_line, 3, M);
+                return validateAndSaveComponent(spice_line, 3, M);
             case 'Q': //BJT - binary junction transistor
-                return isValidComponent(spice_line, 3, Q);
+                return validateAndSaveComponent(spice_line, 3, Q);
             case 'R': //Resistor
-                return isValidComponent(spice_line, 2, R);
+                return validateAndSaveComponent(spice_line, 2, R);
             case 'V': //V - Voltage source
-                return isValidComponent(spice_line, 2, V);
+                return validateAndSaveComponent(spice_line, 2, V);
 
             default:
                 fprintf(stderr, "[Line %d] Unexpected '%c' as first character of line!\n", spice_line->index + 1,
@@ -164,8 +164,8 @@ bool SpiceInterpreter::interpretSpiceRow(row_t *spice_line) {
 void SpiceInterpreter::printComponentList() {
     printf("\nCOMPONENTS:\n");
 
-    for (int i = 0; i < components.size(); ++i) {
-        components[i]->print();
+    for (auto &component : components) {
+        component->print();
     }
 }
 

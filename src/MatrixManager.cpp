@@ -160,7 +160,7 @@ void MatrixManager::permutate(int line1, int line2) {
 }
 
 void MatrixManager::stamp(std::vector<Component*> components) {
-    for (int i = 0; i < components.size(); ++i) {
-        components[i]->stamp(H);
+    for (auto &component : components) {
+        component->stamp(H);
     }
 }

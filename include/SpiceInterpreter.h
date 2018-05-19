@@ -49,7 +49,7 @@ private:
      * @param node_count number of expected "node" cells
      * @param component_type expected type of component (ROW_TYPEs)
      */
-    bool isValidComponent(row_t *spice_line, int node_count, RowType component_type);
+    bool validateAndSaveComponent(row_t *spice_line, int node_count, RowType component_type);
 
     /**
      * Takes a data_t* and checks if it need to be have itś value set to a float multiplied by a unit prefix
