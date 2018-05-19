@@ -34,10 +34,9 @@ int main(int argc, char* argv[]) {
 
     auto manager = MatrixManager(interpreter.getComponents().size());
 
-    std::cout << manager;
-    manager.solve();
-    std::cout << manager;
     manager.stamp(interpreter.getComponents());
+    //manager.solve();
+    std::cout << manager;
     //manager.requiredPrint();
 
     return valid? 0 : 1;

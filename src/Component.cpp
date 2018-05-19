@@ -45,112 +45,160 @@ Component::Component(Group group, char *label, int id, data_t *value, const int 
 
 Component::~Component() {
     free(label);
+    free(type);
 }
 
 //CAPACITOR
 
 Capacitor::Capacitor(Group group, char *label, int id, data_t *value, int *nodes) : Component(
-        group, label, id, value, nodes) {}
+        group, label, id, value, nodes) {
+    type = static_cast<char *>(malloc(sizeof("CAPACITOR")));
+    sprintf(type, "CAPACITOR");
+}
 
-void Capacitor::stamp(std::vector<std::vector<double>> matrix) {
+void Capacitor::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
 }
 
 //DIODE
 
 Diode::Diode(Group group, char *label, int id, data_t *value, int *nodes) : Component(
-        group, label, id, value, nodes) {}
+        group, label, id, value, nodes) {
+    type = static_cast<char *>(malloc(sizeof("DIODE    ")));
+    sprintf(type, "DIODE    ");
+}
 
-void Diode::stamp(std::vector<std::vector<double>> matrix) {
+void Diode::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
 }
 
 //VCVS
 
 VCVS::VCVS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
-        group, label, id, value, nodes) {}
+        group, label, id, value, nodes) {
+    type = static_cast<char *>(malloc(sizeof("VCVS     ")));
+    sprintf(type, "VCVS     ");
+}
 
-void VCVS::stamp(std::vector<std::vector<double>> matrix) {
+void VCVS::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
 }
 
 //CCCS
 
 CCCS::CCCS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
-        group, label, id, value, nodes) {}
+        group, label, id, value, nodes) {
+    type = static_cast<char *>(malloc(sizeof("CCCS     ")));
+    sprintf(type, "CCCS     ");
+}
 
-void CCCS::stamp(std::vector<std::vector<double>> matrix) {
+void CCCS::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
 }
 
 //VCCS
 
 VCCS::VCCS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
-        group, label, id, value, nodes) {}
+        group, label, id, value, nodes) {
+    type = static_cast<char *>(malloc(sizeof("VCCS     ")));
+    sprintf(type, "VCCS     ");
+}
 
-void VCCS::stamp(std::vector<std::vector<double>> matrix) {
+void VCCS::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
 }
 
 //CCVS
 
 CCVS::CCVS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
-        group, label, id, value, nodes) {}
+        group, label, id, value, nodes) {
+    type = static_cast<char *>(malloc(sizeof("CCVS     ")));
+    sprintf(type, "CCVS     ");
+}
 
-void CCVS::stamp(std::vector<std::vector<double>> matrix) {
+void CCVS::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
 }
 
 //CURRENT SOURCE
 
 ISource::ISource(Group group, char *label, int id, data_t *value, int *nodes) : Component(
-        group, label, id, value, nodes) {}
+        group, label, id, value, nodes) {
+    type = static_cast<char *>(malloc(sizeof("I-SOURCE ")));
+    sprintf(type, "I-SOURCE ");
+}
 
-void ISource::stamp(std::vector<std::vector<double>> matrix) {
+void ISource::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
 }
 
 //INDUCTOR
 
 Inductor::Inductor(Group group, char *label, int id, data_t *value, int *nodes) : Component(
-        group, label, id, value, nodes) {}
+        group, label, id, value, nodes) {
+    type = static_cast<char *>(malloc(sizeof("INDUCTOR ")));
+    sprintf(type, "INDUCTOR ");
+}
 
-void Inductor::stamp(std::vector<std::vector<double>> matrix) {
+void Inductor::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
 }
 
 //MOSFET
 
 MOSFET::MOSFET(Group group, char *label, int id, data_t *value, int *nodes) : Component(
-        group, label, id, value, nodes) {}
+        group, label, id, value, nodes) {
+    type = static_cast<char *>(malloc(sizeof("MOSFET   ")));
+    sprintf(type, "MOSFET   ");
+}
 
-void MOSFET::stamp(std::vector<std::vector<double>> matrix) {
+void MOSFET::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
 }
 
 //BJT
 
 BJT::BJT(Group group, char *label, int id, data_t *value, int *nodes) : Component(
-        group, label, id, value, nodes) {}
+        group, label, id, value, nodes) {
+    type = static_cast<char *>(malloc(sizeof("BJT      ")));
+    sprintf(type, "BJT      ");
+}
 
-void BJT::stamp(std::vector<std::vector<double>> matrix) {
+void BJT::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
 }
 
 //RESISTOR
 
 Resistor::Resistor(Group group, char *label, int id, data_t *value, int *nodes) : Component(
-        group, label, id, value, nodes) {}
+        group, label, id, value, nodes) {
+    type = static_cast<char *>(malloc(sizeof("RESISTOR ")));
+    sprintf(type, "RESISTOR ");
+}
 
-void Resistor::stamp(std::vector<std::vector<double>> matrix) {
+void Resistor::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
+
+    /*int nodeVPlus = nodes[0], nodeVMinus = nodes[1];
+    if (group == GROUP1) {
+        (*matrix)[nodeVPlus][nodeVPlus] = 1/value->value._double;
+        (*matrix)[nodeVPlus][nodeVMinus] = -1/value->value._double;
+        (*matrix)[nodeVMinus][nodeVPlus] = -1/value->value._double;
+        (*matrix)[nodeVPlus][nodeVPlus] = 1/value->value._double;
+        (*matrix)[nodeVMinus][nodeVMinus] = 1/value->value._double;
+    } else {
+
+    }*/
 }
 
 //VOLTAGE SOURCE
 
 VSource::VSource(Group group, char *label, int id, data_t *value, int *nodes) : Component(
-        group, label, id, value, nodes) {}
+        group, label, id, value, nodes) {
+    type = static_cast<char *>(malloc(sizeof("V-SOURCE ")));
+    sprintf(type, "V-SOURCE ");
+}
 
-void VSource::stamp(std::vector<std::vector<double>> matrix) {
+void VSource::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
 }
