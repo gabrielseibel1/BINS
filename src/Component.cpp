@@ -47,12 +47,16 @@ Component::~Component() {
     free(label);
 }
 
+//CAPACITOR
+
 Capacitor::Capacitor(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
 
 void Capacitor::stamp(std::vector<std::vector<double>> matrix) {
     std::cout << "Stamp " << type << "\n";
 }
+
+//DIODE
 
 Diode::Diode(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
@@ -61,12 +65,16 @@ void Diode::stamp(std::vector<std::vector<double>> matrix) {
     std::cout << "Stamp " << type << "\n";
 }
 
+//VCVS
+
 VCVS::VCVS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
 
 void VCVS::stamp(std::vector<std::vector<double>> matrix) {
     std::cout << "Stamp " << type << "\n";
 }
+
+//CCCS
 
 CCCS::CCCS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
@@ -75,12 +83,16 @@ void CCCS::stamp(std::vector<std::vector<double>> matrix) {
     std::cout << "Stamp " << type << "\n";
 }
 
+//VCCS
+
 VCCS::VCCS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
 
 void VCCS::stamp(std::vector<std::vector<double>> matrix) {
     std::cout << "Stamp " << type << "\n";
 }
+
+//CCVS
 
 CCVS::CCVS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
@@ -89,12 +101,16 @@ void CCVS::stamp(std::vector<std::vector<double>> matrix) {
     std::cout << "Stamp " << type << "\n";
 }
 
+//CURRENT SOURCE
+
 ISource::ISource(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
 
 void ISource::stamp(std::vector<std::vector<double>> matrix) {
     std::cout << "Stamp " << type << "\n";
 }
+
+//INDUCTOR
 
 Inductor::Inductor(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
@@ -103,12 +119,16 @@ void Inductor::stamp(std::vector<std::vector<double>> matrix) {
     std::cout << "Stamp " << type << "\n";
 }
 
+//MOSFET
+
 MOSFET::MOSFET(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
 
 void MOSFET::stamp(std::vector<std::vector<double>> matrix) {
     std::cout << "Stamp " << type << "\n";
 }
+
+//BJT
 
 BJT::BJT(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
@@ -117,12 +137,16 @@ void BJT::stamp(std::vector<std::vector<double>> matrix) {
     std::cout << "Stamp " << type << "\n";
 }
 
+//RESISTOR
+
 Resistor::Resistor(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
 
 void Resistor::stamp(std::vector<std::vector<double>> matrix) {
     std::cout << "Stamp " << type << "\n";
 }
+
+//VOLTAGE SOURCE
 
 VSource::VSource(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
