@@ -4,18 +4,23 @@
       <w>cccs</w>
       <w>ccvs</w>
       <w>csvparser</w>
+      <w>endptr</w>
       <w>externc</w>
       <w>femto</w>
       <w>giga</w>
+      <w>isrc</w>
       <w>lugepp</w>
       <w>mosfet</w>
       <w>nano</w>
       <w>netlist</w>
+      <w>nptr</w>
       <w>permutate</w>
       <w>pico</w>
+      <w>strtod</w>
       <w>strtof</w>
       <w>vccs</w>
       <w>vcvs</w>
+      <w>vsrc</w>
     </words>
   </dictionary>
 </component>

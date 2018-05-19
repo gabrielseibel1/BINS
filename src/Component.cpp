@@ -32,6 +32,7 @@ Component* ComponentFactory::createComponent(RowType type, char *label, int id, 
         case Q: return new BJT(GROUP1, label, id, value, nodes);
         case R: return new Resistor(GROUP1, label, id, value, nodes);
         case V: return new VSource(GROUP2, label, id, value, nodes);
+        case CMD: case CMT: return nullptr;
     }
 }
 

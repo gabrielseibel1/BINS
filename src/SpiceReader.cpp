@@ -2,10 +2,10 @@
  * Implements functions for parsing CSV files
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <memory.h>
-#include <ctype.h>
+#include <cctype>
 #include "../include/SpiceReader.h"
 
 table_t *SpiceReader::getSpiceTable() const {

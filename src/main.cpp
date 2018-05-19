@@ -2,8 +2,6 @@
 #include <iostream>
 #include "../include/SpiceInterpreter.h"
 #include "../include/SpiceReader.h"
-#include "../include/MatrixManager.h"
-#include "../include/table.h"
 
 int main(int argc, char* argv[]) {
 

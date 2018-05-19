@@ -2,12 +2,11 @@
  * Interprets table_t to parse components, comments and commands
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #include <iostream>
 #include "../include/SpiceInterpreter.h"
-#include "../include/Component.h"
 
 int componentCount = 0;
 

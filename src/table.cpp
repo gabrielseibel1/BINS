@@ -4,9 +4,9 @@
  * Implements constructors, insertions, accesses (getter), printing and clearing for the data structures.
  */
 
-#include <stdio.h>
+#include <cstdio>
 #include <malloc.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include "../include/table.h"
 
 data_t* new_cell_data(char* raw_data) {
@@ -203,37 +203,6 @@ cell_t* get_cell(table_t* table, int row_index, int cell_index) {
     if (!cell) return nullptr;
 
     return cell;
-}
-
-int table_test() {
-    table_t *table = new_table(nullptr);
-    for (int i = 0; i < 5; ++i) {
-        row_t* row = new_row(nullptr);
-        for (int j = 0; j < 3; ++j) {
-            char string[2];
-            sprintf(string, "%d", j);
-            append_cell(row, new_cell(new_cell_data(string)));
-        }
-        append_row(table, row);
-    }
-
-    printf("Testing print_table(table):\n");
-    print_table(table);
-    printf("\n");
-
-    printf("Testing get_cell(cell, i, j):\n");
-    for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            cell_t* cell = get_cell(table, i, j);
-            if (cell) print_cell(cell);
-        }
-        printf("\n");
-    }
-
-    clear_table(table);
-    free(table);
-
-    return 0;
 }
 
 const char *row_type_to_string(RowType type) {

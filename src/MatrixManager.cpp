@@ -6,7 +6,6 @@
 #include <ostream>
 #include <iostream>
 #include "../include/MatrixManager.h"
-#include "../include/Component.h"
 
 MatrixManager::MatrixManager(size_t size) : size(size) {
     H = std::vector<std::vector<double> >(size);

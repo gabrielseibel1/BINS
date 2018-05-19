@@ -25,7 +25,7 @@ int NodeMap::nodeToInt(data_t *node) {
         node_as_string = buff.str();
     }
 
-    std::map<std::string, int>::iterator it = nodeMap.find(node_as_string);
+    auto it = nodeMap.find(node_as_string);
 
     if (it != nodeMap.end()) {
         return it->second;

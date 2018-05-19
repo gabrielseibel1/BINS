@@ -7,7 +7,7 @@
 #ifndef BINS_TABLE_H
 #define BINS_TABLE_H
 
-#include <string.h>
+#include <cstring>
 
 enum RowType {
     /** COMMAND */ CMD,
@@ -121,11 +121,6 @@ void print_row(row_t *row);
  * Prints all of the rows of the table, evoking print_row(row, row_index) for each.
  */
 void print_table(table_t *table);
-
-/**
- * Prints a list of components, represented by a t_table*
- */
-void print_table_as_component_list(table_t* list_of_components);
 
 /**
  * Clears allocated data from a cell
