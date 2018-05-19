@@ -15,4 +15,6 @@ add_executable(
         src/NodeMap.cpp
         include/NodeMap.h
         src/MatrixManager.cpp
-        include/MatrixManager.h)
+        include/MatrixManager.h
+        src/Component.cpp
+        include/Component.h)

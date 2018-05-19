@@ -2,10 +2,10 @@
  * Helper file to map nodes to ints
  */
 
-#include "../include/NodeMap.h"
 #include <cmath>
 #include <sstream>
 #include <iostream>
+#include "../include/NodeMap.h"
 
 int NodeMap::next_node_int() {
     return ++lastNodeInt;

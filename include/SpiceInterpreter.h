@@ -6,11 +6,11 @@
 #ifndef BINS_SPICE_INTERPRETER_H
 #define BINS_SPICE_INTERPRETER_H
 
-#include <stdbool.h>
 #include <vector>
 #include <string>
 #include "table.h"
 #include "NodeMap.h"
+#include "Component.h"
 
 enum UnitPrefix {
     FEMTO = -15,
@@ -24,32 +24,13 @@ enum UnitPrefix {
     TERA = 12
 };
 
-enum Group {
-    GROUP1 = 1, GROUP2 = 2
-};
-
-typedef struct component {
-    RowType type;
-    Group group;
-    char *label;
-    int id;
-    int nodes[MAX_NODES];
-    data_t *value;
-} component_t;
-
 class SpiceInterpreter {
 private:
     table_t *spiceTable;
     bool validSpiceTable;
-    std::vector<component_t> components;
+    std::vector<Component*> components;
     std::vector<std::string> actions;
     NodeMap nodeMap;
-
-    /**
-     * Constructor for t_component. Builds component structure based on a table row
-     * @param spice_line pointer to a t_row containing VALID component information
-     */
-    component_t *newComponent(RowType type, char *label, const int *nodes, data_t *value);
 
     /**
      * Checks if row of a t_table represents a valid .spc line
@@ -81,16 +62,12 @@ private:
      */
     int getNodeNumber(data_t *string);
 
-    void printComponent(component_t component);
-
-    void setPreliminarGroup(component_t* component);
-
 public:
     explicit SpiceInterpreter(table_t *spiceTable);
 
     bool isValidSpiceTable() const;
 
-    const std::vector<component_t> &getComponents() const;
+    const std::vector<Component*> &getComponents() const;
 
     const std::vector<std::string> &getActions() const;
 

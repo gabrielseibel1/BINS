@@ -29,9 +29,6 @@ enum RowType {
 #define CELL_DATA_TYPE_STRING 0
 #define CELL_DATA_TYPE_DOUBLE 1
 
-#define UNUSED_NODE (-1)
-#define MAX_NODES 4
-
 typedef union cell_data_value {
     char* _string;
     double _double;

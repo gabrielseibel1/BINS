@@ -1,8 +1,11 @@
 #ifndef BINS_MATRIX_MANAGER_H
 #define BINS_MATRIX_MANAGER_H
 
+class Component;
+
 #include <vector>
-#include "SpiceInterpreter.h"
+#include "Component.h"
+
 
 #define HP(i, j) H [p[i]] [j]
 #define xP(i) x [p[i]]
@@ -18,8 +21,6 @@ private:
     Vector b;
     std::vector<int> p;
     size_t size;
-
-    void stamp(component_t component);
 
     void permutate(int k, int line);
 
@@ -44,8 +45,8 @@ public:
 
     void buildMatricesFromStdIn();
 
-    void stamp(std::vector<component_t> components);
-
     void solve();
+
+    void stamp(std::vector<Component*> components);
 };
 #endif //BINS_MATRIX_MANAGER_H

@@ -6,6 +6,7 @@
 #include <ostream>
 #include <iostream>
 #include "../include/MatrixManager.h"
+#include "../include/Component.h"
 
 MatrixManager::MatrixManager(size_t size) : size(size) {
     H = std::vector<std::vector<double> >(size);
@@ -128,13 +129,6 @@ void MatrixManager::buildMatricesFromStdIn() {
     }
 }
 
-void MatrixManager::stamp(component_t component) {
-    int index = component.id;
-    switch (component.type) {
-        default: printf("Stamp %s in %d\n", row_type_to_string(component.type), index);
-    }
-}
-
 size_t MatrixManager::getSize() const {
     return size;
 }
@@ -165,6 +159,8 @@ void MatrixManager::permutate(int line1, int line2) {
     }
 }
 
-void MatrixManager::stamp(std::vector<component_t> components) {
-    for (auto component : components) { stamp(component); }
+void MatrixManager::stamp(std::vector<Component*> components) {
+    for (int i = 0; i < components.size(); ++i) {
+        components[i]->stamp(H);
+    }
 }

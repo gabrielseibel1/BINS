@@ -5,7 +5,7 @@
 #ifndef BINS_SPICE_READER_H
 #define BINS_SPICE_READER_H
 
-#include "../include/table.h"
+#include "table.h"
 
 class SpiceReader {
 
