@@ -43,6 +43,10 @@ Component::Component(Group group, char *label, int id, data_t *value, const int 
     }
 }
 
+Component::~Component() {
+    free(label);
+}
+
 Capacitor::Capacitor(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {}
 

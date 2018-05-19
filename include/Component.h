@@ -27,6 +27,8 @@ public:
 
     Component(Group group, char *label, int id, data_t *value, const int *nodes);
 
+    virtual ~Component();
+
     virtual void stamp(std::vector<std::vector<double>> matrix) = 0;
 
     void print();

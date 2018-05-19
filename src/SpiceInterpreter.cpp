@@ -187,3 +187,9 @@ const std::vector<std::string> &SpiceInterpreter::getActions() const {
 void SpiceInterpreter::printNodeMap() {
     std::cout << nodeMap;
 }
+
+SpiceInterpreter::~SpiceInterpreter() {
+    for (auto *component : components) {
+        delete component;
+    }
+}

@@ -65,6 +65,8 @@ private:
 public:
     explicit SpiceInterpreter(table_t *spiceTable);
 
+    virtual ~SpiceInterpreter();
+
     bool isValidSpiceTable() const;
 
     const std::vector<Component*> &getComponents() const;
