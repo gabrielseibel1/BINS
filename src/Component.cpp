@@ -111,6 +111,10 @@ void CCCS::print() {
     printf("\n");
 }
 
+CCCS::~CCCS() {
+    free(controllerCurrent);
+}
+
 //VCCS
 
 VCCS::VCCS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
@@ -148,6 +152,10 @@ void CCVS::print() {
     printf("VALUE: ");
     print_cell_data(value);
     printf("\n");
+}
+
+CCVS::~CCVS() {
+    free(controllerCurrent);
 }
 
 //CURRENT SOURCE

@@ -58,6 +58,7 @@ public:
     char *controllerCurrent;
     void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
     void print() override;
+    ~CCCS() override;
     CCCS(Group group, char *label, int id, data_t *value, int *nodes, char* controllerCurrent);
 };
 
@@ -72,6 +73,7 @@ public:
     char *controllerCurrent;
     void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
     void print() override;
+    ~CCVS() override;
     CCVS(Group group, char *label, int id, data_t *value, int *nodes, char* controllerCurrent);
 };
 
