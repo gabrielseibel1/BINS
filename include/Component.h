@@ -16,6 +16,30 @@ enum Group {
     GROUP1 = 1, GROUP2 = 2
 };
 
+static const char *const I_SOURCE_STR = "I-SOURCE ";
+
+static const char *const CAPACITOR_STR = "CAPACITOR";
+
+static const char *const DIODE_STR = "DIODE    ";
+
+static const char *const VCVS_STR = "VCVS     ";
+
+static const char *const CCCS_STR = "CCCS     ";
+
+static const char *const VCCS_STR = "VCCS     ";
+
+static const char *const CCVS_STR = "CCVS     ";
+
+static const char *const INDUCTOR_STR = "INDUCTOR ";
+
+static const char *const MOSFET_STR = "MOSFET   ";
+
+static const char *const BJT_STR = "BJT      ";
+
+static const char *const RESISTOR_STR = "RESISTOR ";
+
+static const char *const V_SOURCE_STR = "V-SOURCE ";
+
 class Component {
 public:
     Group group;
@@ -32,6 +56,8 @@ public:
     virtual void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) = 0;
 
     virtual void print();
+
+    virtual void setControllerToGroup2IfControlled(std::vector<Component *> components);
 };
 
 class Capacitor: public Component {
@@ -58,6 +84,7 @@ public:
     char *controllerCurrent;
     void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
     void print() override;
+    void setControllerToGroup2IfControlled(std::vector<Component *> components) override;
     ~CCCS() override;
     CCCS(Group group, char *label, int id, data_t *value, int *nodes, char* controllerCurrent);
 };
@@ -73,6 +100,7 @@ public:
     char *controllerCurrent;
     void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
     void print() override;
+    void setControllerToGroup2IfControlled(std::vector<Component *> components) override;
     ~CCVS() override;
     CCVS(Group group, char *label, int id, data_t *value, int *nodes, char* controllerCurrent);
 };

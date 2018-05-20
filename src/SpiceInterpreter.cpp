@@ -22,10 +22,18 @@ void SpiceInterpreter::interpretSpiceTable() {
 
     validSpiceTable = true;
 
+    //interpret each row
     row_t *row = spiceTable->rows;
     while (row) {
         validSpiceTable = interpretSpiceRow(row) && validSpiceTable;
         row = row->next_row;
+    }
+
+
+    //check for group2 elements
+    std::vector<std::string> group2Members = std::vector<std::string>();
+    for (auto *component : components) {
+        component->setControllerToGroup2IfControlled(components);
     }
 }
 

@@ -81,6 +81,8 @@ public:
     void printComponentList();
 
     void printNodeMap();
+
+    Component * findController(char *label);
 };
 
 #endif //BINS_SPICE_INTERPRETER_H

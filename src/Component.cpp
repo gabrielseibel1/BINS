@@ -24,8 +24,8 @@ Component* ComponentFactory::createComponent(RowType type, char *label, int id, 
         case D: return new Diode(GROUP1, label, id, value, nodes);
         case E: return new VCVS(GROUP2, label, id, value, nodes);
         case F: return new CCCS(GROUP1, label, id, value, nodes, controllerCurrent);
-        case G: return new VCCS(GROUP1, label, id, value, nodes);
-        case H: return new CCVS(GROUP2, label, id, value, nodes, controllerCurrent);
+        case G: return new VCCS(GROUP2, label, id, value, nodes);
+        case H: return new CCVS(GROUP1, label, id, value, nodes, controllerCurrent);
         case I: return new ISource(GROUP1, label, id, value, nodes);
         case L: return new Inductor(GROUP1, label, id, value, nodes);
         case M: return new MOSFET(GROUP1, label, id, value, nodes);
@@ -48,12 +48,15 @@ Component::~Component() {
     free(type);
 }
 
+void Component::setControllerToGroup2IfControlled(std::vector<Component *> components) {
+    //do nothing, for default. Should be overridden by CC sources
+}
+
 //CAPACITOR
 
 Capacitor::Capacitor(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {
-    type = static_cast<char *>(malloc(sizeof("CAPACITOR")));
-    sprintf(type, "CAPACITOR");
+    type = strdup(CAPACITOR_STR);
 }
 
 void Capacitor::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
@@ -64,8 +67,7 @@ void Capacitor::stamp(std::vector<std::vector<double>> *matrix, std::vector<doub
 
 Diode::Diode(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {
-    type = static_cast<char *>(malloc(sizeof("DIODE    ")));
-    sprintf(type, "DIODE    ");
+    type = strdup(DIODE_STR);
 }
 
 void Diode::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
@@ -76,8 +78,7 @@ void Diode::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> 
 
 VCVS::VCVS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {
-    type = static_cast<char *>(malloc(sizeof("VCVS     ")));
-    sprintf(type, "VCVS     ");
+    type = strdup(VCVS_STR);
 }
 
 void VCVS::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
@@ -88,8 +89,7 @@ void VCVS::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *
 
 CCCS::CCCS(Group group, char *label, int id, data_t *value, int *nodes, char* controllerCurrent) : Component(
         group, label, id, value, nodes) {
-    type = static_cast<char *>(malloc(sizeof("CCCS     ")));
-    sprintf(type, "CCCS     ");
+    type = strdup(CCCS_STR);
     this->controllerCurrent = controllerCurrent;
 }
 
@@ -115,12 +115,20 @@ CCCS::~CCCS() {
     free(controllerCurrent);
 }
 
+void CCCS::setControllerToGroup2IfControlled(std::vector<Component *> components) {
+    for (auto *component : components) {
+        if (strcmp(component->label, controllerCurrent) == 0) {
+            component->group = GROUP2;
+            return;
+        }
+    }
+}
+
 //VCCS
 
 VCCS::VCCS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {
-    type = static_cast<char *>(malloc(sizeof("VCCS     ")));
-    sprintf(type, "VCCS     ");
+    type = strdup(VCCS_STR);
 }
 
 void VCCS::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
@@ -131,8 +139,7 @@ void VCCS::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *
 
 CCVS::CCVS(Group group, char *label, int id, data_t *value, int *nodes, char *controllerCurrent) : Component(
         group, label, id, value, nodes) {
-    type = static_cast<char *>(malloc(sizeof("CCVS     ")));
-    sprintf(type, "CCVS     ");
+    type = strdup(CCVS_STR);
     this->controllerCurrent = controllerCurrent;
 }
 
@@ -158,12 +165,20 @@ CCVS::~CCVS() {
     free(controllerCurrent);
 }
 
+void CCVS::setControllerToGroup2IfControlled(std::vector<Component *> components) {
+    for (auto *component : components) {
+        if (strcmp(component->label, controllerCurrent) == 0) {
+            component->group = GROUP2;
+            return;
+        }
+    }
+}
+
 //CURRENT SOURCE
 
 ISource::ISource(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {
-    type = static_cast<char *>(malloc(sizeof("I-SOURCE ")));
-    sprintf(type, "I-SOURCE ");
+    type = strdup(I_SOURCE_STR);
 }
 
 void ISource::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
@@ -174,8 +189,7 @@ void ISource::stamp(std::vector<std::vector<double>> *matrix, std::vector<double
 
 Inductor::Inductor(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {
-    type = static_cast<char *>(malloc(sizeof("INDUCTOR ")));
-    sprintf(type, "INDUCTOR ");
+    type = strdup(INDUCTOR_STR);
 }
 
 void Inductor::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
@@ -186,8 +200,7 @@ void Inductor::stamp(std::vector<std::vector<double>> *matrix, std::vector<doubl
 
 MOSFET::MOSFET(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {
-    type = static_cast<char *>(malloc(sizeof("MOSFET   ")));
-    sprintf(type, "MOSFET   ");
+    type = strdup(MOSFET_STR);
 }
 
 void MOSFET::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
@@ -198,8 +211,7 @@ void MOSFET::stamp(std::vector<std::vector<double>> *matrix, std::vector<double>
 
 BJT::BJT(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {
-    type = static_cast<char *>(malloc(sizeof("BJT      ")));
-    sprintf(type, "BJT      ");
+    type = strdup(BJT_STR);
 }
 
 void BJT::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
@@ -210,8 +222,7 @@ void BJT::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *r
 
 Resistor::Resistor(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {
-    type = static_cast<char *>(malloc(sizeof("RESISTOR ")));
-    sprintf(type, "RESISTOR ");
+    type = strdup(RESISTOR_STR);
 }
 
 void Resistor::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
@@ -233,8 +244,7 @@ void Resistor::stamp(std::vector<std::vector<double>> *matrix, std::vector<doubl
 
 VSource::VSource(Group group, char *label, int id, data_t *value, int *nodes) : Component(
         group, label, id, value, nodes) {
-    type = static_cast<char *>(malloc(sizeof("V-SOURCE ")));
-    sprintf(type, "V-SOURCE ");
+    type = strdup(V_SOURCE_STR);
 }
 
 void VSource::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
