@@ -31,7 +31,7 @@ public:
 
     virtual void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) = 0;
 
-    void print();
+    virtual void print();
 };
 
 class Capacitor: public Component {
@@ -55,8 +55,10 @@ public:
 
 class CCCS: public Component {
 public:
+    char *controllerCurrent;
     void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
-    CCCS(Group group, char *label, int id, data_t *value, int *nodes);
+    void print() override;
+    CCCS(Group group, char *label, int id, data_t *value, int *nodes, char* controllerCurrent);
 };
 
 class VCCS: public Component {
@@ -67,8 +69,10 @@ public:
 
 class CCVS: public Component {
 public:
+    char *controllerCurrent;
     void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
-    CCVS(Group group, char *label, int id, data_t *value, int *nodes);
+    void print() override;
+    CCVS(Group group, char *label, int id, data_t *value, int *nodes, char* controllerCurrent);
 };
 
 class ISource: public Component {
@@ -109,7 +113,7 @@ public:
 
 class ComponentFactory {
 public:
-    Component *createComponent(RowType type, char *label, int id, int *nodes, data_t *value);
+    Component *createComponent(RowType type, char *label, int id, int *nodes, data_t *value, char *controllerCurrent);
 };
 
 #endif //BINS_COMPONENT_H

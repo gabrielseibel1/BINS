@@ -64,27 +64,33 @@ void SpiceInterpreter::checkIfDataHasUnitPrefix(data_t *data) {
     }
 }
 
-bool SpiceInterpreter::validateAndSaveComponent(row_t *spice_line, int node_count, RowType component_type) {
+bool SpiceInterpreter::validateAndSaveComponent(row_t *spice_line, int nodeCount, RowType component_type) {
     cell_t *cell = spice_line->cells;
 
     //parameters to be parsed so a component_t can be constructed
-    auto *label = const_cast<char *>("\0");
+    char *label = nullptr;
     int nodes[MAX_NODES] = {UNUSED_NODE, UNUSED_NODE, UNUSED_NODE, UNUSED_NODE};
     data_t *value = nullptr;
+    char* controllerCurrent = nullptr;
 
-    for (int i = 0; i < node_count + 2 /*label + nodes + value*/; ++i) {
+    for (int i = 0; i < nodeCount + 2 /*label + nodes + value*/; ++i) {
         if (!cell) {
             fprintf(stderr, "[Line %d] Not enough parameters for component!\n", spice_line->index + 1);
             return false;
         }
 
-        if (i == 0) { //if its first cell, get label (just exclude first char, which represents component type)
-            label = strdup(cell->data->value._string + 1);
-        } else if (i == node_count + 1) { //last cell contains value
+        if (i == 0) { //if its first cell, get label
+            label = strdup(cell->data->value._string);
+        } else if (i == nodeCount + 1) { //last cell contains value
             checkIfDataHasUnitPrefix(cell->data);
             value = cell->data;
         } else { //the current cell is a node
-            nodes[i - 1] = getNodeNumber(cell->data);
+            //current-controlled sources have third "node" as label for controller-current element
+            if ((component_type == F || component_type == H) && i == nodeCount) {
+                controllerCurrent = strdup(cell->data->value._string);
+            } else {
+                nodes[i - 1] = getNodeNumber(cell->data);
+            }
         }
         cell = cell->next_cell;
     }
@@ -95,7 +101,7 @@ bool SpiceInterpreter::validateAndSaveComponent(row_t *spice_line, int node_coun
     }
 
     ComponentFactory factory = ComponentFactory();
-    Component *component = factory.createComponent(component_type, label, componentCount++, nodes, value);
+    Component *component = factory.createComponent(component_type, label, componentCount++, nodes, value, controllerCurrent);
     spice_line->type = component_type;
     components.insert(components.end(), component);
 
@@ -130,11 +136,11 @@ bool SpiceInterpreter::interpretSpiceRow(row_t *spice_line) {
             case 'E': //VCVS - voltage controlled voltage source
                 return validateAndSaveComponent(spice_line, 4, E);
             case 'F': //CCCS - current controlled current source
-                return validateAndSaveComponent(spice_line, 4, F);
+                return validateAndSaveComponent(spice_line, 3, F);
             case 'G': //VCCS - voltage controlled current source
                 return validateAndSaveComponent(spice_line, 4, G);
             case 'H': //CCVS - current controlled voltage source
-                return validateAndSaveComponent(spice_line, 4, H);
+                return validateAndSaveComponent(spice_line, 3, H);
             case 'I': //Current source
                 return validateAndSaveComponent(spice_line, 2, I);
             case 'L': //Inductor

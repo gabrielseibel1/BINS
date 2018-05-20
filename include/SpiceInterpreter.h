@@ -46,10 +46,10 @@ private:
     /**
      * Checks if a t_row represents a valid component
      * @param spice_line row to be analysed
-     * @param node_count number of expected "node" cells
+     * @param nodeCount number of expected "node" cells
      * @param component_type expected type of component (ROW_TYPEs)
      */
-    bool validateAndSaveComponent(row_t *spice_line, int node_count, RowType component_type);
+    bool validateAndSaveComponent(row_t *spice_line, int nodeCount, RowType component_type);
 
     /**
      * Takes a data_t* and checks if it need to be have itś value set to a float multiplied by a unit prefix

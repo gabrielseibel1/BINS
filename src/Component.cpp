@@ -18,14 +18,14 @@ void Component::print() {
     printf("\n");
 }
 
-Component* ComponentFactory::createComponent(RowType type, char *label, int id, int *nodes, data_t *value) {
+Component* ComponentFactory::createComponent(RowType type, char *label, int id, int *nodes, data_t *value, char *controllerCurrent) {
     switch (type) { //TODO decide group based on parsed info
         case C: return new Capacitor(GROUP1, label, id, value, nodes);
         case D: return new Diode(GROUP1, label, id, value, nodes);
         case E: return new VCVS(GROUP2, label, id, value, nodes);
-        case F: return new CCCS(GROUP1, label, id, value, nodes);
+        case F: return new CCCS(GROUP1, label, id, value, nodes, controllerCurrent);
         case G: return new VCCS(GROUP1, label, id, value, nodes);
-        case H: return new CCVS(GROUP2, label, id, value, nodes);
+        case H: return new CCVS(GROUP2, label, id, value, nodes, controllerCurrent);
         case I: return new ISource(GROUP1, label, id, value, nodes);
         case L: return new Inductor(GROUP1, label, id, value, nodes);
         case M: return new MOSFET(GROUP1, label, id, value, nodes);
@@ -86,14 +86,29 @@ void VCVS::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *
 
 //CCCS
 
-CCCS::CCCS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
+CCCS::CCCS(Group group, char *label, int id, data_t *value, int *nodes, char* controllerCurrent) : Component(
         group, label, id, value, nodes) {
     type = static_cast<char *>(malloc(sizeof("CCCS     ")));
     sprintf(type, "CCCS     ");
+    this->controllerCurrent = controllerCurrent;
 }
 
 void CCCS::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
+}
+
+void CCCS::print() {
+    printf("TYPE: %s\t\t", type);
+    printf("GROUP: %d\t\t", group);
+    printf("ID: %d\t\t", id);
+    printf("LABEL: %s\t\t", label);
+    for (int i = 0; i < MAX_NODES; ++i) {
+        if (nodes[i] != UNUSED_NODE) printf("NODE%d:\t%d\t", i, nodes[i]);
+    }
+    printf("CONTROL: %s\t\t", controllerCurrent);
+    printf("VALUE: ");
+    print_cell_data(value);
+    printf("\n");
 }
 
 //VCCS
@@ -110,14 +125,29 @@ void VCCS::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *
 
 //CCVS
 
-CCVS::CCVS(Group group, char *label, int id, data_t *value, int *nodes) : Component(
+CCVS::CCVS(Group group, char *label, int id, data_t *value, int *nodes, char *controllerCurrent) : Component(
         group, label, id, value, nodes) {
     type = static_cast<char *>(malloc(sizeof("CCVS     ")));
     sprintf(type, "CCVS     ");
+    this->controllerCurrent = controllerCurrent;
 }
 
 void CCVS::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
+}
+
+void CCVS::print() {
+    printf("TYPE: %s\t\t", type);
+    printf("GROUP: %d\t\t", group);
+    printf("ID: %d\t\t", id);
+    printf("LABEL: %s\t\t", label);
+    for (int i = 0; i < MAX_NODES; ++i) {
+        if (nodes[i] != UNUSED_NODE) printf("NODE%d:\t%d\t", i, nodes[i]);
+    }
+    printf("CONTROL: %s\t\t", controllerCurrent);
+    printf("VALUE: ");
+    print_cell_data(value);
+    printf("\n");
 }
 
 //CURRENT SOURCE
@@ -179,7 +209,7 @@ Resistor::Resistor(Group group, char *label, int id, data_t *value, int *nodes) 
 void Resistor::stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) {
     std::cout << "Stamp " << type << "\n";
 
-    /*int nodeVPlus = nodes[0], nodeVMinus = nodes[1];
+    int nodeVPlus = nodes[0], nodeVMinus = nodes[1];
     if (group == GROUP1) {
         (*matrix)[nodeVPlus][nodeVPlus] = 1/value->value._double;
         (*matrix)[nodeVPlus][nodeVMinus] = -1/value->value._double;
@@ -188,7 +218,7 @@ void Resistor::stamp(std::vector<std::vector<double>> *matrix, std::vector<doubl
         (*matrix)[nodeVMinus][nodeVMinus] = 1/value->value._double;
     } else {
 
-    }*/
+    }
 }
 
 //VOLTAGE SOURCE
