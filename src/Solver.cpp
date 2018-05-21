@@ -24,7 +24,7 @@ Solver::Solver(size_t size, size_t group1Size) : size(size), nodesCount(group1Si
 Solver::~Solver() = default;
 
 std::ostream &operator<<(std::ostream &os, const Solver &manager) {
-    os << "\nMatrixManager {";
+    os << "\nSolver {";
     os << "\n\tp (" << manager.size << "x1) = \n\t[ ";
     for (int j = 0; j < manager.size; ++j) {
         os << std::setw(5) << std::left << manager.p[j] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
@@ -34,7 +34,7 @@ std::ostream &operator<<(std::ostream &os, const Solver &manager) {
     for (int i = 0; i < manager.size; ++i) {
         os << "\t[ ";
         for (int j = 0; j < manager.size; ++j) {
-            os << std::setw(10) << std::left << manager.H[manager.p[i]][j] << ((j + 1 < manager.size) ? " " : "");
+            os << std::setw(15) << std::left << manager.H[manager.p[i]][j] << ((j + 1 < manager.size) ? " " : "");
         }
         os << " ]\n";
     }
@@ -48,6 +48,7 @@ std::ostream &operator<<(std::ostream &os, const Solver &manager) {
         os << std::setw(5) << std::left << manager.x[manager.p[j]] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
     }
     os << " ]\n";
+    os << "}\n";
     return os;
 }
 
