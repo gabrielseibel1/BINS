@@ -31,6 +31,8 @@ private:
     std::vector<Component*> components;
     std::vector<std::string> actions;
     NodeMap nodeMap;
+    int group1Count;
+    int group2Count;
 
     /**
      * Checks if row of a t_table represents a valid .spc line
@@ -82,7 +84,11 @@ public:
 
     void printNodeMap();
 
-    Component * findController(char *label);
+    int getGroup1Count() const;
+
+    int getGroup2Count() const;
+
+    const NodeMap &getNodeMap() const;
 };
 
 #endif //BINS_SPICE_INTERPRETER_H

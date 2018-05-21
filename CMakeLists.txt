@@ -14,7 +14,7 @@ add_executable(
         include/SpiceInterpreter.h
         src/NodeMap.cpp
         include/NodeMap.h
-        src/MatrixManager.cpp
-        include/MatrixManager.h
+        src/Solver.cpp
+        include/Solver.h
         src/Component.cpp
         include/Component.h)

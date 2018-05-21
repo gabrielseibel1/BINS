@@ -8,10 +8,10 @@
 #include <iostream>
 #include "../include/SpiceInterpreter.h"
 
-int componentCount = 0;
-
 SpiceInterpreter::SpiceInterpreter(table_t *spiceTable) : spiceTable(spiceTable) {
     validSpiceTable = false;
+    group1Count = 0;
+    group2Count = 0;
 }
 
 void SpiceInterpreter::interpretSpiceTable() {
@@ -31,9 +31,18 @@ void SpiceInterpreter::interpretSpiceTable() {
 
 
     //check for group2 elements
-    std::vector<std::string> group2Members = std::vector<std::string>();
     for (auto *component : components) {
-        component->setControllerToGroup2IfControlled(components);
+        Component *controller = component->getControllerIfExists(components);
+        if (controller) {
+            controller->group = GROUP2;
+        }
+    }
+
+    for (auto *component : components) {
+        if (component->group == GROUP1)
+            component->indexInGroup = group1Count++;
+        else
+            component->indexInGroup = group2Count++;
     }
 }
 
@@ -109,7 +118,7 @@ bool SpiceInterpreter::validateAndSaveComponent(row_t *spice_line, int nodeCount
     }
 
     ComponentFactory factory = ComponentFactory();
-    Component *component = factory.createComponent(component_type, label, componentCount++, nodes, value, controllerCurrent);
+    Component *component = factory.createComponent(component_type, label, nodes, value, controllerCurrent);
     spice_line->type = component_type;
     components.insert(components.end(), component);
 
@@ -206,4 +215,16 @@ SpiceInterpreter::~SpiceInterpreter() {
     for (auto *component : components) {
         delete component;
     }
+}
+
+int SpiceInterpreter::getGroup1Count() const {
+    return group1Count;
+}
+
+int SpiceInterpreter::getGroup2Count() const {
+    return group2Count;
+}
+
+const NodeMap &SpiceInterpreter::getNodeMap() const {
+    return nodeMap;
 }

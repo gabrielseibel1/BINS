@@ -18,6 +18,8 @@ private:
     int next_node_int();
 
 public:
+    size_t getSize();
+
     int nodeToInt(data_t *node);
 
     friend std::ostream &operator<<(std::ostream &os, const NodeMap &map);

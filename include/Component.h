@@ -5,9 +5,11 @@
 #ifndef BINS_COMPONENT_H
 #define BINS_COMPONENT_H
 
+class Solver;
+
 #include <ostream>
 #include "table.h"
-#include "MatrixManager.h"
+#include "Solver.h"
 
 #define UNUSED_NODE (-1)
 #define MAX_NODES 4
@@ -44,106 +46,108 @@ class Component {
 public:
     Group group;
     char* label;
-    int id;
+    int indexInGroup;
     data_t* value;
     int nodes[MAX_NODES];
     char *type;
 
-    Component(Group group, char *label, int id, data_t *value, const int *nodes);
+    Component(Group group, char *label, data_t *value, const int *nodes);
 
     virtual ~Component();
 
-    virtual void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) = 0;
+    virtual void stamp(Solver *solver) = 0;
 
     virtual void print();
 
-    virtual void setControllerToGroup2IfControlled(std::vector<Component *> components);
+    virtual Component * getControllerIfExists(std::vector<Component *> components);
 };
 
 class Capacitor: public Component {
 public:
     //char type[10] = "CAPACITOR";
-    void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
-    Capacitor(Group group, char *label, int id, data_t *value, int *nodes);
+    void stamp(Solver *solver) override;
+    Capacitor(Group group, char *label, data_t *value, int *nodes);
 };
 
 class Diode: public Component {
 public:
-    void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
-    Diode(Group group, char *label, int id, data_t *value, int *nodes);
+    void stamp(Solver *solver) override;
+    Diode(Group group, char *label, data_t *value, int *nodes);
 };
 
 class VCVS: public Component {
 public:
-    void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
-    VCVS(Group group, char *label, int id, data_t *value, int *nodes);
+    void stamp(Solver *solver) override;
+    VCVS(Group group, char *label, data_t *value, int *nodes);
 };
 
 class CCCS: public Component {
 public:
     char *controllerCurrent;
-    void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
+    Component *controller;
+    void stamp(Solver *solver) override;
     void print() override;
-    void setControllerToGroup2IfControlled(std::vector<Component *> components) override;
+    Component *getControllerIfExists(std::vector<Component *> components) override;
     ~CCCS() override;
-    CCCS(Group group, char *label, int id, data_t *value, int *nodes, char* controllerCurrent);
+    CCCS(Group group, char *label, data_t *value, int *nodes, char* controllerCurrent);
 };
 
 class VCCS: public Component {
 public:
-    void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
-    VCCS(Group group, char *label, int id, data_t *value, int *nodes);
+    void stamp(Solver *solver) override;
+    VCCS(Group group, char *label, data_t *value, int *nodes);
 };
 
 class CCVS: public Component {
 public:
     char *controllerCurrent;
-    void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
+    Component *controller;
+    void stamp(Solver *solver) override;
     void print() override;
-    void setControllerToGroup2IfControlled(std::vector<Component *> components) override;
+    Component * getControllerIfExists(std::vector<Component *> components) override;
     ~CCVS() override;
-    CCVS(Group group, char *label, int id, data_t *value, int *nodes, char* controllerCurrent);
+    CCVS(Group group, char *label, data_t *value, int *nodes, char* controllerCurrent);
 };
 
 class ISource: public Component {
 public:
-    void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
-    ISource(Group group, char *label, int id, data_t *value, int *nodes);
+    void stamp(Solver *solver) override;
+    ISource(Group group, char *label, data_t *value, int *nodes);
 };
 
 class Inductor: public Component {
 public:
-    void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
-    Inductor(Group group, char *label, int id, data_t *value, int *nodes);
+    void stamp(Solver *solver) override;
+    Inductor(Group group, char *label, data_t *value, int *nodes);
 };
 
 class MOSFET: public Component {
 public:
-    void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
-    MOSFET(Group group, char *label, int id, data_t *value, int *nodes);
+    void stamp(Solver *solver) override;
+    MOSFET(Group group, char *label, data_t *value, int *nodes);
 };
 
 class BJT: public Component {
 public:
-    void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
-    BJT(Group group, char *label, int id, data_t *value, int *nodes);
+    void stamp(Solver *solver) override;
+    BJT(Group group, char *label, data_t *value, int *nodes);
 };
 
 class Resistor: public Component {
 public:
-    void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
-    Resistor(Group group, char *label, int id, data_t *value, int *nodes);
+    void stamp(Solver *solver) override;
+    Resistor(Group group, char *label, data_t *value, int *nodes);
 };
 
 class VSource: public Component {
 public:
-    void stamp(std::vector<std::vector<double>> *matrix, std::vector<double> *rhs) override;
-    VSource(Group group, char *label, int id, data_t *value, int *nodes);
+    void stamp(Solver *solver) override;
+    VSource(Group group, char *label, data_t *value, int *nodes);
 };
 
 class ComponentFactory {
 public:
-    Component *createComponent(RowType type, char *label, int id, int *nodes, data_t *value, char *controllerCurrent);
+    Component *createComponent(RowType type, char *label, int *nodes, data_t *value, char *controllerCurrent);
 };
 
 #endif //BINS_COMPONENT_H

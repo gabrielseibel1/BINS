@@ -43,3 +43,7 @@ std::ostream &operator<<(std::ostream &os, const NodeMap &map) {
         std::cout << "ID: " << pair.second << "\t\tLABEL: " << pair.first << "\n";
     }
 }
+
+size_t NodeMap::getSize() {
+    return nodeMap.size();
+}

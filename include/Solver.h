@@ -11,17 +11,11 @@ class Component;
 #define xP(i) x [p[i]]
 #define bP(i) b [p[i]]
 
-class MatrixManager {
+class Solver {
     using Matrix = std::vector<std::vector<double> >;
     using Vector = std::vector<double>;
 
 private:
-    Matrix H;
-    Vector x;
-    Vector b;
-    std::vector<int> p;
-    size_t size;
-
     void permutate(int k, int line);
 
     int lineWithLargestPivot(int k);
@@ -33,13 +27,20 @@ private:
     void LUGEPP(Matrix *A);
 
 public:
-    explicit MatrixManager(size_t size);
+    Matrix H;
+    Vector x;
+    Vector b;
+    std::vector<int> p;
+    size_t size;
+    size_t nodesCount;
 
-    virtual ~MatrixManager();
+    explicit Solver(size_t size, size_t group2Size);
+
+    virtual ~Solver();
 
     size_t getSize() const;
 
-    friend std::ostream &operator<<(std::ostream &os, const MatrixManager &manager);
+    friend std::ostream &operator<<(std::ostream &os, const Solver &manager);
 
     void requiredPrint();
 

@@ -5,9 +5,10 @@
 #include <vector>
 #include <ostream>
 #include <iostream>
-#include "../include/MatrixManager.h"
+#include <iomanip>
+#include "../include/Solver.h"
 
-MatrixManager::MatrixManager(size_t size) : size(size) {
+Solver::Solver(size_t size, size_t group1Size) : size(size), nodesCount(group1Size) {
     H = std::vector<std::vector<double> >(size);
     for (int i = 0; i < size; ++i) {
         H[i] = std::vector<double>(size);
@@ -20,15 +21,15 @@ MatrixManager::MatrixManager(size_t size) : size(size) {
     }
 }
 
-MatrixManager::~MatrixManager() = default;
+Solver::~Solver() = default;
 
-std::ostream &operator<<(std::ostream &os, const MatrixManager &manager) {
+std::ostream &operator<<(std::ostream &os, const Solver &manager) {
     os << "\nMatrixManager {";
     os << "\n\tH (" << manager.size << "x" << manager.size << ") = \n";
     for (int i = 0; i < manager.size; ++i) {
         os << "\t[ ";
         for (int j = 0; j < manager.size; ++j) {
-            os << manager.H[i][j] << ((j + 1 < manager.size) ? " " : "");
+            os << std::setw(10) << std::left << manager.H[i][j] << ((j + 1 < manager.size) ? " " : "");
         }
         os << " ]\n";
     }
@@ -50,7 +51,7 @@ std::ostream &operator<<(std::ostream &os, const MatrixManager &manager) {
     return os;
 }
 
-void MatrixManager::requiredPrint() {
+void Solver::requiredPrint() {
     printf("\n\n");
     for (int i = 0; i < size; ++i) {
         for (int j = 0; j < size; ++j) {
@@ -71,7 +72,7 @@ void MatrixManager::requiredPrint() {
     }
 }
 
-void MatrixManager::LUGEPP(Matrix *A) {
+void Solver::LUGEPP(Matrix *A) {
     for (int k = 0; k < size; ++k) {
         //int pivotLine = lineWithLargestPivot(k);
         //permutate(k, pivotLine);
@@ -85,7 +86,7 @@ void MatrixManager::LUGEPP(Matrix *A) {
     }
 }
 
-void MatrixManager::forwardSubstitution(Matrix *L, Vector *y, Vector *z) {
+void Solver::forwardSubstitution(Matrix *L, Vector *y, Vector *z) {
     for (int k = 0; k < size; ++k) {
         (*y)[k] = (*z)[k];
         for (int j = 0; j <= k - 1; ++j) {
@@ -95,7 +96,7 @@ void MatrixManager::forwardSubstitution(Matrix *L, Vector *y, Vector *z) {
     }
 }
 
-void MatrixManager::backwardSubstitution(Matrix *U, Vector *x, Vector *y) {
+void Solver::backwardSubstitution(Matrix *U, Vector *x, Vector *y) {
     for (int k = (int) size - 1; k >= 0; --k) {
         (*x)[k] = (*y)[k];
         for (int j = k + 1; j < size; ++j) {
@@ -105,7 +106,7 @@ void MatrixManager::backwardSubstitution(Matrix *U, Vector *x, Vector *y) {
     }
 }
 
-void MatrixManager::solve() {
+void Solver::solve() {
     LUGEPP(&H);
     Vector y = Vector(size);
     forwardSubstitution(&H, &y, &b);
@@ -113,7 +114,7 @@ void MatrixManager::solve() {
     backwardSubstitution(&H, &x, &y);
 }
 
-void MatrixManager::buildMatricesFromStdIn() {
+void Solver::buildMatricesFromStdIn() {
     std::cout << "Size? ";
     std::cin >> size;
     for (int i = 0; i < size; ++i) {
@@ -128,11 +129,11 @@ void MatrixManager::buildMatricesFromStdIn() {
     }
 }
 
-size_t MatrixManager::getSize() const {
+size_t Solver::getSize() const {
     return size;
 }
 
-int MatrixManager::lineWithLargestPivot(int k) {
+int Solver::lineWithLargestPivot(int k) {
     int line = k;
     double maxHik = HP(k,k);
     for (int i = k; i < size; ++i) {
@@ -146,7 +147,7 @@ int MatrixManager::lineWithLargestPivot(int k) {
     return line;
 }
 
-void MatrixManager::permutate(int line1, int line2) {
+void Solver::permutate(int line1, int line2) {
     if (line1 != line2) {
         int pLine1 = p[line1];
         int pLine2 = p[line2];
@@ -158,8 +159,9 @@ void MatrixManager::permutate(int line1, int line2) {
     }
 }
 
-void MatrixManager::stamp(std::vector<Component*> components) {
+void Solver::stamp(std::vector<Component*> components) {
     for (auto &component : components) {
-        component->stamp(&H, &b);
+        component->stamp(this);
+        std::cout << *this;
     }
 }

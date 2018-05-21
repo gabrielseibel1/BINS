@@ -32,12 +32,14 @@ int main(int argc, char* argv[]) {
         printf("Found errors in %s, reported in stderr. Correct them and try again.\n", filename);
     }
 
-    auto manager = MatrixManager(interpreter.getComponents().size());
+    NodeMap nodeMap = interpreter.getNodeMap();
+    Solver solver = Solver(nodeMap.getSize() - 1 /*don't count GND*/ + static_cast<size_t>(interpreter.getGroup2Count()),
+                           nodeMap.getSize() - 1 /*don't count GND*/);
 
-    manager.stamp(interpreter.getComponents());
-    //manager.solve();
-    std::cout << manager;
-    //manager.requiredPrint();
+    solver.stamp(interpreter.getComponents());
+    //solver.solve();
+    std::cout << solver;
+    //solver.requiredPrint();
 
     return valid? 0 : 1;
 }
