@@ -68,7 +68,7 @@ Capacitor::Capacitor(Group group, char *label, data_t *value, int *nodes) : Comp
 }
 
 void Capacitor::stamp(Solver *solver) {
-    std::cout << "Stamp " << type << "\n";
+    
 }
 
 //DIODE
@@ -79,7 +79,7 @@ Diode::Diode(Group group, char *label, data_t *value, int *nodes) : Component(
 }
 
 void Diode::stamp(Solver *solver) {
-    std::cout << "Stamp " << type << "\n";
+    
 }
 
 //VCVS
@@ -90,8 +90,6 @@ VCVS::VCVS(Group group, char *label, data_t *value, int *nodes) : Component(
 }
 
 void VCVS::stamp(Solver *solver) {
-    std::cout << "Stamp " << type << "\n";
-
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
     int nodeVxP = nodes[2] - 1, nodeVxM = nodes[3] - 1;
     int group2Index = (int) solver->nodesCount + indexInGroup;
@@ -113,8 +111,6 @@ CCCS::CCCS(Group group, char *label, data_t *value, int *nodes, char* controller
 }
 
 void CCCS::stamp(Solver *solver) {
-    std::cout << "Stamp " << type << "\n";
-
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
     int controlCurrentIndex = (int) solver->nodesCount + controller->indexInGroup;
     if (group == GROUP1) {
@@ -167,8 +163,6 @@ VCCS::VCCS(Group group, char *label, data_t *value, int *nodes) : Component(
 }
 
 void VCCS::stamp(Solver *solver) {
-    std::cout << "Stamp " << type << "\n";
-
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
     int nodeVxP = nodes[2] - 1, nodeVxM = nodes[3] - 1;
     if (group == GROUP1) {
@@ -197,8 +191,6 @@ CCVS::CCVS(Group group, char *label, data_t *value, int *nodes, char *controller
 }
 
 void CCVS::stamp(Solver *solver) {
-    std::cout << "Stamp " << type << "\n";
-
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
     int group2Index = (int) solver->nodesCount + indexInGroup;
     int controlCurrentIndex = (int) solver->nodesCount + controller->indexInGroup;
@@ -246,8 +238,6 @@ ISource::ISource(Group group, char *label, data_t *value, int *nodes) : Componen
 }
 
 void ISource::stamp(Solver *solver) {
-    std::cout << "Stamp " << type << "\n";
-
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
     if (group == GROUP1) {
         stampIfNotGND(&solver->b, nodeVPlus, -value->value._double);
@@ -271,7 +261,7 @@ Inductor::Inductor(Group group, char *label, data_t *value, int *nodes) : Compon
 }
 
 void Inductor::stamp(Solver *solver) {
-    std::cout << "Stamp " << type << "\n";
+    
 }
 
 //MOSFET
@@ -282,7 +272,7 @@ MOSFET::MOSFET(Group group, char *label, data_t *value, int *nodes) : Component(
 }
 
 void MOSFET::stamp(Solver *solver) {
-    std::cout << "Stamp " << type << "\n";
+    
 }
 
 //BJT
@@ -293,7 +283,7 @@ BJT::BJT(Group group, char *label, data_t *value, int *nodes) : Component(
 }
 
 void BJT::stamp(Solver *solver) {
-    std::cout << "Stamp " << type << "\n";
+    
 }
 
 //RESISTOR
@@ -304,8 +294,6 @@ Resistor::Resistor(Group group, char *label, data_t *value, int *nodes) : Compon
 }
 
 void Resistor::stamp(Solver *solver) {
-    std::cout << "Stamp " << type << "\n";
-
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
     if (group == GROUP1) {
         stampIfNotGND(&solver->H, nodeVPlus, nodeVPlus, 1/value->value._double);
@@ -332,8 +320,6 @@ VSource::VSource(Group group, char *label, data_t *value, int *nodes) : Componen
 }
 
 void VSource::stamp(Solver *solver) {
-    std::cout << "Stamp " << type << "\n";
-
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1, group2Index = (int) solver->nodesCount + indexInGroup;
 
     stampIfNotGND(&solver->H, nodeVPlus, group2Index, 1);

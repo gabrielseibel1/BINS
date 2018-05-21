@@ -25,27 +25,27 @@ Solver::~Solver() = default;
 
 std::ostream &operator<<(std::ostream &os, const Solver &manager) {
     os << "\nMatrixManager {";
-    os << "\n\tH (" << manager.size << "x" << manager.size << ") = \n";
-    for (int i = 0; i < manager.size; ++i) {
-        os << "\t[ ";
-        for (int j = 0; j < manager.size; ++j) {
-            os << std::setw(10) << std::left << manager.H[i][j] << ((j + 1 < manager.size) ? " " : "");
-        }
-        os << " ]\n";
-    }
-    os << "\n\tx (" << manager.size << "x1) = \n\t[ ";
-    for (int j = 0; j < manager.size; ++j) {
-        os << manager.x[j] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
-    }
-    os << " ]\n";
-    os << "\n\tb (" << manager.size << "x1) = \n\t[ ";
-    for (int j = 0; j < manager.size; ++j) {
-        os << manager.b[j] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
-    }
-    os << " ]\n";
     os << "\n\tp (" << manager.size << "x1) = \n\t[ ";
     for (int j = 0; j < manager.size; ++j) {
         os << manager.p[j] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
+    }
+    os << " ]\n";
+    os << "\n\tHperm (" << manager.size << "x" << manager.size << ") = \n";
+    for (int i = 0; i < manager.size; ++i) {
+        os << "\t[ ";
+        for (int j = 0; j < manager.size; ++j) {
+            os << std::setw(10) << std::left << manager.H[manager.p[i]][j] << ((j + 1 < manager.size) ? " " : "");
+        }
+        os << " ]\n";
+    }
+    os << "\n\tBperm (" << manager.size << "x1) = \n\t[ ";
+    for (int j = 0; j < manager.size; ++j) {
+        os << manager.b[manager.p[j]] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
+    }
+    os << " ]\n";
+    os << "\n\tXperm (" << manager.size << "x1) = \n\t[ ";
+    for (int j = 0; j < manager.size; ++j) {
+        os << manager.x[manager.p[j]] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
     }
     os << " ]\n";
     return os;
@@ -68,19 +68,23 @@ void Solver::requiredPrint() {
     }
     printf("\n\n");
     for (int j = 0; j < size; ++j) {
-        printf("p[%d] = %lf\n", j, b[j]);
+        printf("p[%d] = %d\n", j, p[j]);
+    }
+    printf("\n\n");
+    for (int j = 0; j < size; ++j) {
+        printf("x[p[%d]] = %lf\n", j, x[p[j]]);
     }
 }
 
 void Solver::LUGEPP(Matrix *A) {
     for (int k = 0; k < size; ++k) {
-        //int pivotLine = lineWithLargestPivot(k);
-        //permutate(k, pivotLine);
+        int pivotLine = lineWithLargestPivot(k);
+        permutate(k, pivotLine);
 
         for (int i = k + 1; i < size; ++i) {
-            (*A)[i][k] /= (*A)[k][k];
+            (*A)[p[i]][k] /= (*A)[p[k]][k];
             for (int j = k + 1; j < size; ++j) {
-                (*A)[i][j] -= (*A)[i][k] * (*A)[k][j];
+                (*A)[p[i]][j] -= (*A)[p[i]][k] * (*A)[p[k]][j];
             }
         }
     }
@@ -88,21 +92,21 @@ void Solver::LUGEPP(Matrix *A) {
 
 void Solver::forwardSubstitution(Matrix *L, Vector *y, Vector *z) {
     for (int k = 0; k < size; ++k) {
-        (*y)[k] = (*z)[k];
+        (*y)[p[k]] = (*z)[p[k]];
         for (int j = 0; j <= k - 1; ++j) {
-            (*y)[k] -= (*L)[k][j] * (*y)[j];
+            (*y)[p[k]] -= (*L)[p[k]][j] * (*y)[p[j]];
         }
-        //(*y)[k] /= (*L)[k][k]; commented out because L matrix in our case has the diagonal shared with the U matrix
+        //(*y)[p[k]] /= (*L)[p[k]][k]; commented out because L matrix in our case has the diagonal shared with the U matrix
     }
 }
 
 void Solver::backwardSubstitution(Matrix *U, Vector *x, Vector *y) {
     for (int k = (int) size - 1; k >= 0; --k) {
-        (*x)[k] = (*y)[k];
+        (*x)[p[k]] = (*y)[p[k]];
         for (int j = k + 1; j < size; ++j) {
-            (*x)[k] -= (*U)[k][j] * (*x)[j];
+            (*x)[p[k]] -= (*U)[p[k]][j] * (*x)[p[j]];
         }
-        (*x)[k] /= (*U)[k][k];
+        (*x)[p[k]] /= (*U)[p[k]][k];
     }
 }
 
@@ -110,7 +114,6 @@ void Solver::solve() {
     LUGEPP(&H);
     Vector y = Vector(size);
     forwardSubstitution(&H, &y, &b);
-    std::cout << "y = "; for (auto el : y) std::cout << el << ",";
     backwardSubstitution(&H, &x, &y);
 }
 
@@ -135,33 +138,29 @@ size_t Solver::getSize() const {
 
 int Solver::lineWithLargestPivot(int k) {
     int line = k;
-    double maxHik = HP(k,k);
+    double maxHik = H[p[k]][k];
     for (int i = k; i < size; ++i) {
-        double hik = HP(i,k);
-        if (hik > maxHik) {
-            maxHik = hik;
-            line = i;
+        if (p[i] > p[k]) {
+            double hik = H[p[i]][k];
+            if (hik > maxHik) {
+                maxHik = hik;
+                line = i;
+            }
         }
     }
-    std::cout << "largest pivot from " << k << " is in line " << line << "\n";
     return line;
 }
 
 void Solver::permutate(int line1, int line2) {
     if (line1 != line2) {
-        int pLine1 = p[line1];
-        int pLine2 = p[line2];
-
-        p[pLine1] = pLine1;
-        p[pLine2] = pLine1;
-        std::cout << "p[" << pLine1 << "] = " << pLine2 << "\n";
-        std::cout << "p[" << pLine2 << "] = " << pLine1 << "\n";
+        int swap = p[line1];
+        p[line1] = line2;
+        p[line2] = swap;
     }
 }
 
 void Solver::stamp(std::vector<Component*> components) {
     for (auto &component : components) {
         component->stamp(this);
-        std::cout << *this;
     }
 }

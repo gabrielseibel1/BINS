@@ -36,8 +36,11 @@ int main(int argc, char* argv[]) {
     Solver solver = Solver(nodeMap.getSize() - 1 /*don't count GND*/ + static_cast<size_t>(interpreter.getGroup2Count()),
                            nodeMap.getSize() - 1 /*don't count GND*/);
 
+    std::cout << "\n\nStamping ... \n\n";
     solver.stamp(interpreter.getComponents());
-    //solver.solve();
+    std::cout << solver;
+    std::cout << "\n\nSolving ... \n\n";
+    solver.solve();
     std::cout << solver;
     //solver.requiredPrint();
 
