@@ -27,7 +27,7 @@ std::ostream &operator<<(std::ostream &os, const Solver &manager) {
     os << "\nMatrixManager {";
     os << "\n\tp (" << manager.size << "x1) = \n\t[ ";
     for (int j = 0; j < manager.size; ++j) {
-        os << manager.p[j] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
+        os << std::setw(5) << std::left << manager.p[j] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
     }
     os << " ]\n";
     os << "\n\tHperm (" << manager.size << "x" << manager.size << ") = \n";
@@ -40,12 +40,12 @@ std::ostream &operator<<(std::ostream &os, const Solver &manager) {
     }
     os << "\n\tBperm (" << manager.size << "x1) = \n\t[ ";
     for (int j = 0; j < manager.size; ++j) {
-        os << manager.b[manager.p[j]] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
+        os << std::setw(5) << std::left << manager.b[manager.p[j]] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
     }
     os << " ]\n";
     os << "\n\tXperm (" << manager.size << "x1) = \n\t[ ";
     for (int j = 0; j < manager.size; ++j) {
-        os << manager.x[manager.p[j]] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
+        os << std::setw(5) << std::left << manager.x[manager.p[j]] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
     }
     os << " ]\n";
     return os;
