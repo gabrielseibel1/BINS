@@ -92,7 +92,7 @@ void Solver::forwardSubstitution(Matrix *L, Vector *y, Vector *z) {
         for (int j = 0; j <= k - 1; ++j) {
             (*y)[k] -= (*L)[k][j] * (*y)[j];
         }
-        //(*y)[k] /= (*L)[k][k];
+        //(*y)[k] /= (*L)[k][k]; commented out because L matrix in our case has the diagonal shared with the U matrix
     }
 }
 
