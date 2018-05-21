@@ -10,6 +10,7 @@
 
 SpiceInterpreter::SpiceInterpreter(table_t *spiceTable) : spiceTable(spiceTable) {
     validSpiceTable = false;
+    simulationRequired = false;
     group1Count = 0;
     group2Count = 0;
 }
@@ -46,8 +47,11 @@ void SpiceInterpreter::interpretSpiceTable() {
     }
 }
 
-bool SpiceInterpreter::isValidCommand(row_t *command) {
-    command->type = CMD;
+bool SpiceInterpreter::isValidCommand(row_t *row) {
+    row->type = CMD;
+    if (strcmp(row->cells->data->value._string, ".OP") == 0) {
+        simulationRequired = true;
+    }
     return true;
 }
 
@@ -227,4 +231,8 @@ int SpiceInterpreter::getGroup2Count() const {
 
 const NodeMap &SpiceInterpreter::getNodeMap() const {
     return nodeMap;
+}
+
+bool SpiceInterpreter::simulationIsRequired() const {
+    return simulationRequired;
 }

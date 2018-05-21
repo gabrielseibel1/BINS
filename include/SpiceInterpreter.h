@@ -28,6 +28,7 @@ class SpiceInterpreter {
 private:
     table_t *spiceTable;
     bool validSpiceTable;
+    bool simulationRequired;
     std::vector<Component*> components;
     std::vector<std::string> actions;
     NodeMap nodeMap;
@@ -43,7 +44,7 @@ private:
     /**
      * Checks if a t_row represents a valid command
      */
-    bool isValidCommand(row_t *command);
+    bool isValidCommand(row_t *row);
 
     /**
      * Checks if a t_row represents a valid component
@@ -70,6 +71,8 @@ public:
     virtual ~SpiceInterpreter();
 
     bool isValidSpiceTable() const;
+
+    bool simulationIsRequired() const;
 
     const std::vector<Component*> &getComponents() const;
 

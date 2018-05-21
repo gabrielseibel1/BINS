@@ -1,4 +1,5 @@
 primeira linha é comentário
+.op
 V1 1 0 40
 R1 1 2 10
 I1 3 2 5
