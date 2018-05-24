@@ -1,8 +1,10 @@
 <component name="ProjectDictionaryState">
   <dictionary name="gabriel">
     <words>
+      <w>abstol</w>
       <w>cccs</w>
       <w>ccvs</w>
+      <w>cout</w>
       <w>csvparser</w>
       <w>endptr</w>
       <w>externc</w>
@@ -16,6 +18,7 @@
       <w>nptr</w>
       <w>permutate</w>
       <w>pico</w>
+      <w>reltol</w>
       <w>strtod</w>
       <w>strtof</w>
       <w>vccs</w>

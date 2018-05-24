@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 project(BINS)
-
 set(CMAKE_CXX_STANDARD 11)
-
 add_executable(
         BINS
         src/main.cpp
@@ -18,3 +16,4 @@ add_executable(
         include/Solver.h
         src/Component.cpp
         include/Component.h)
+

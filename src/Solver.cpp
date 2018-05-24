@@ -24,13 +24,13 @@ Solver::Solver(size_t size, size_t group1Size) : size(size), nodesCount(group1Si
 Solver::~Solver() = default;
 
 std::ostream &operator<<(std::ostream &os, const Solver &manager) {
-    os << "\nSolver {";
-    os << "\n\tp (" << manager.size << "x1) = \n\t[ ";
+    os << "\nSOLVER: {\n";
+    os << "\n\tP (" << manager.size << "x1) = \n\t[ ";
     for (int j = 0; j < manager.size; ++j) {
         os << std::setw(5) << std::left << manager.p[j] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
     }
     os << " ]\n";
-    os << "\n\tHperm (" << manager.size << "x" << manager.size << ") = \n";
+    os << "\n\tH_PERM (" << manager.size << "x" << manager.size << ") = \n";
     for (int i = 0; i < manager.size; ++i) {
         os << "\t[ ";
         for (int j = 0; j < manager.size; ++j) {
@@ -38,16 +38,16 @@ std::ostream &operator<<(std::ostream &os, const Solver &manager) {
         }
         os << " ]\n";
     }
-    os << "\n\tBperm (" << manager.size << "x1) = \n\t[ ";
+    os << "\n\tB_PERM (" << manager.size << "x1) = \n\t[ ";
     for (int j = 0; j < manager.size; ++j) {
         os << std::setw(5) << std::left << manager.b[manager.p[j]] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
     }
     os << " ]\n";
-    os << "\n\tXperm (" << manager.size << "x1) = \n\t[ ";
+    os << "\n\tX_PERM (" << manager.size << "x1) = \n\t[ ";
     for (int j = 0; j < manager.size; ++j) {
         os << std::setw(5) << std::left << manager.x[manager.p[j]] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
     }
-    os << " ]\n";
+    os << " ]\n\n";
     os << "}\n";
     return os;
 }
@@ -56,24 +56,24 @@ void Solver::requiredPrint() {
     printf("\n\n");
     for (int i = 0; i < size; ++i) {
         for (int j = 0; j < size; ++j) {
-            printf("H[%d][%d] = %lf\n", i, j, H[i][j]);
+            printf("H(%d,%d) = %lf\n", i, j, H[i][j]);
         }
     }
     printf("\n\n");
     for (int j = 0; j < size; ++j) {
-        printf("x[%d] = %lf\n", j, x[j]);
+        printf("X(%d) = %lf\n", j, x[j]);
     }
     printf("\n\n");
     for (int j = 0; j < size; ++j) {
-        printf("b[%d] = %lf\n", j, b[j]);
+        printf("B(%d) = %lf\n", j, b[j]);
     }
     printf("\n\n");
     for (int j = 0; j < size; ++j) {
-        printf("p[%d] = %d\n", j, p[j]);
+        printf("P(%d) = %d\n", j, p[j]);
     }
     printf("\n\n");
     for (int j = 0; j < size; ++j) {
-        printf("x[p[%d]] = %lf\n", j, x[p[j]]);
+        printf("X(P(%d)) = %lf\n", j, x[p[j]]);
     }
 }
 
@@ -141,7 +141,7 @@ void Solver::solve() {
 
     iterativeRefinement(A);
 
-    measureRefinementChanges(xBeforeRefinement);
+    //measureRefinementChanges(xBeforeRefinement);
 }
 
 void Solver::measureRefinementChanges(const Solver::DoubleVector &xBeforeRefinement) const {
@@ -159,8 +159,8 @@ void Solver::measureRefinementChanges(const Solver::DoubleVector &xBeforeRefinem
 }
 
 void Solver::iterativeRefinement(const LongDoubleMatrix &A) {
-    std::cout << "Running iterative refinement "
-            "(ABSTOL = " << ABSTOL << ", RELTOL = " << RELTOL << ", MAX_ITER = " << MAX_ITER_REFINEMENT << ") ...\n\n";
+    /*std::cout << "Running iterative refinement "
+            "(ABSTOL = " << ABSTOL << ", RELTOL = " << RELTOL << ", MAX_ITER = " << MAX_ITER_REFINEMENT << ") ...\n\n";*/
 
     int iteration = 0;
     //iterative refinement

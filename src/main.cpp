@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 
     char* filename = argv[1];
 
-    std::cout << "\n\nReading <" << filename << "> ...\n\n";
+    //std::cout << "\n\nReading <" << filename << "> ...\n\n";
 
     //read table
     SpiceReader reader = SpiceReader(filename);
@@ -39,20 +39,20 @@ int main(int argc, char* argv[]) {
         Solver solver = Solver(nodeMap.getSize() - 1 /*don't count GND*/ + static_cast<size_t>(interpreter.getGroup2Count()),
                                nodeMap.getSize() - 1 /*don't count GND*/);
 
-        std::cout << "\n\nStamping ... \n\n";
-        std::cout << "Stamping results:\n";
+        //std::cout << "\n\nStamping ... \n\n";
         solver.stamp(interpreter.getComponents());
-        std::cout << solver;
-        std::cout << "\n\nSolving ... \n\n";
+        //std::cout << "Stamping results:\n";
+        //std::cout << solver;
+        //std::cout << "\n\nSolving ... \n\n";
         solver.solve();
-        std::cout << "\n\n\n\n///////////////////////////////////////// FINAL RESULTS /////////////////////////////////////////\n";
+        //std::cout << "\n\n\n\n///////////////////////////////////////// FINAL RESULTS /////////////////////////////////////////\n";
         std::cout << solver;
-        std::cout << "\n/////////////////////////////////////////////////////////////////////////////////////////////////\n\n";
+        //std::cout << "\n/////////////////////////////////////////////////////////////////////////////////////////////////\n\n";
         //solver.requiredPrint();
     } else {
         std::cout << "\n\nTo simulate the circuit, insert the command \".OP\" in your spice file.\n";
     }
 
-    std::cout << "\nExiting ... \n";
+    //std::cout << "\nExiting ... \n";
     return valid? 0 : 1;
 }
