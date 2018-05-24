@@ -9,12 +9,12 @@
 #include "../include/Solver.h"
 
 Solver::Solver(size_t size, size_t group1Size) : size(size), nodesCount(group1Size) {
-    H = std::vector<std::vector<double> >(size);
+    H = DoubleMatrix(size);
     for (int i = 0; i < size; ++i) {
         H[i] = std::vector<double>(size);
     }
-    x = std::vector<double>(size);
-    b = std::vector<double>(size);
+    x = DoubleVector(size);
+    b = DoubleVector(size);
     p = std::vector<int>(size);
     for (int i = 0; i < size; ++i) {
         p[i] = i;
@@ -77,7 +77,7 @@ void Solver::requiredPrint() {
     }
 }
 
-void Solver::LUGEPP(Matrix *A) {
+void Solver::LUGEPP(DoubleMatrix *A) {
     for (int k = 0; k < size; ++k) {
         int pivotLine = lineWithLargestPivot(k);
         permutate(k, pivotLine);
@@ -91,7 +91,7 @@ void Solver::LUGEPP(Matrix *A) {
     }
 }
 
-void Solver::forwardSubstitution(Matrix *L, Vector *y, Vector *z) {
+void Solver::forwardSubstitution(DoubleMatrix *L, DoubleVector *y, DoubleVector *z) {
     for (int k = 0; k < size; ++k) {
         (*y)[p[k]] = (*z)[p[k]];
         for (int j = 0; j <= k - 1; ++j) {
@@ -101,7 +101,17 @@ void Solver::forwardSubstitution(Matrix *L, Vector *y, Vector *z) {
     }
 }
 
-void Solver::backwardSubstitution(Matrix *U, Vector *x, Vector *y) {
+void Solver::forwardSubstitution(DoubleMatrix *L, DoubleVector *y, LongDoubleVector *z) {
+    for (int k = 0; k < size; ++k) {
+        (*y)[p[k]] = (*z)[p[k]];
+        for (int j = 0; j <= k - 1; ++j) {
+            (*y)[p[k]] -= (*L)[p[k]][j] * (*y)[p[j]];
+        }
+        //(*y)[p[k]] /= (*L)[p[k]][k]; commented out because L matrix in our case has the diagonal shared with the U matrix
+    }
+}
+
+void Solver::backwardSubstitution(DoubleMatrix *U, DoubleVector *x, DoubleVector *y) {
     for (int k = (int) size - 1; k >= 0; --k) {
         (*x)[p[k]] = (*y)[p[k]];
         for (int j = k + 1; j < size; ++j) {
@@ -112,10 +122,80 @@ void Solver::backwardSubstitution(Matrix *U, Vector *x, Vector *y) {
 }
 
 void Solver::solve() {
+    LongDoubleMatrix A = LongDoubleMatrix(size);
+    for (int i = 0; i < size; ++i) {
+        A[i] = std::vector<long double>(size);
+    }
+    saveOriginalMatrix(&A);
+
     LUGEPP(&H);
-    Vector y = Vector(size);
+    DoubleVector y = DoubleVector(size);
     forwardSubstitution(&H, &y, &b);
     backwardSubstitution(&H, &x, &y);
+
+    //copy x vector for later comparison
+    DoubleVector xBeforeRefinement = DoubleVector(size);
+    for (int i = 0; i < size; ++i) {
+        xBeforeRefinement[i] = x[i];
+    }
+
+    iterativeRefinement(A);
+
+    measureRefinementChanges(xBeforeRefinement);
+}
+
+void Solver::measureRefinementChanges(const Solver::DoubleVector &xBeforeRefinement) const {
+    //compare x before and after iterative refinement
+    LongDoubleVector difference = LongDoubleVector(size);
+    for (int i = 0; i < size; ++i) {
+        difference[i] = xBeforeRefinement[i] - x[i];
+    }
+    std::cout << "Difference between X before and after iterative refinement: \n";
+    std::cout << "XDif (" << size << "x1) = \n\t[ ";
+    for (int j = 0; j < size; ++j) {
+        std::cout << std::setw(15) << std::left << difference[p[j]] << ((j + 1 < size) ? " ]\n\t[ " : "");
+    }
+    std::cout << " ]\n";
+}
+
+void Solver::iterativeRefinement(const LongDoubleMatrix &A) {
+    std::cout << "Running iterative refinement "
+            "(ABSTOL = " << ABSTOL << ", RELTOL = " << RELTOL << ", MAX_ITER = " << MAX_ITER_REFINEMENT << ") ...\n\n";
+
+    int iteration = 0;
+    //iterative refinement
+    DoubleVector z;
+    do {
+        //solve Ax with increased precision
+        LongDoubleVector Ax = LongDoubleVector(size);
+        for (int i = 0; i < size; ++i) {
+            long double sum = 0;
+            for (int j = 0; j < size; ++j) {
+                sum += A[p[i]][j] * x[p[j]];
+            }
+            Ax[p[i]] = sum;
+        }
+
+        //create residue vector with increased precision
+        LongDoubleVector r = LongDoubleVector(size);
+        for (int i = 0; i < size; ++i) {
+            r[i] = b[i] - Ax[i];
+        }
+
+        //solve LUz = Pr (Hz = Pr)
+        z = DoubleVector(size);
+        DoubleVector w = DoubleVector(size);
+        forwardSubstitution(&H, &w, &r);
+        backwardSubstitution(&H, &z, &w);
+
+        //x = x + z
+        for (int i = 0; i < size; ++i) {
+            x[i] += z[i];
+        }
+
+        iteration++;
+    }
+    while ((norm(z) <= RELTOL * norm(x) + ABSTOL) && (iteration <= MAX_ITER_REFINEMENT));
 }
 
 void Solver::buildMatricesFromStdIn() {
@@ -157,6 +237,24 @@ void Solver::permutate(int line1, int line2) {
         int swap = p[line1];
         p[line1] = line2;
         p[line2] = swap;
+    }
+}
+
+double Solver::norm(Solver::DoubleVector vector) {
+    //find line with largest value
+    double max = vector[p[0]];
+    for (int i = 0; i < size; ++i) {
+        double hik = vector[i];
+        if (hik > max) max = hik;
+    }
+    return max;
+}
+
+void Solver::saveOriginalMatrix(Solver::LongDoubleMatrix *A) {
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < size; ++j) {
+            (*A)[i][j] = H[i][j];
+        }
     }
 }
 

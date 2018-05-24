@@ -40,11 +40,14 @@ int main(int argc, char* argv[]) {
                                nodeMap.getSize() - 1 /*don't count GND*/);
 
         std::cout << "\n\nStamping ... \n\n";
+        std::cout << "Stamping results:\n";
         solver.stamp(interpreter.getComponents());
         std::cout << solver;
         std::cout << "\n\nSolving ... \n\n";
         solver.solve();
+        std::cout << "\n\n\n\n///////////////////////////////////////// FINAL RESULTS /////////////////////////////////////////\n";
         std::cout << solver;
+        std::cout << "\n/////////////////////////////////////////////////////////////////////////////////////////////////\n\n";
         //solver.requiredPrint();
     } else {
         std::cout << "\n\nTo simulate the circuit, insert the command \".OP\" in your spice file.\n";

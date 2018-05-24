@@ -6,30 +6,33 @@ class Component;
 #include <vector>
 #include "Component.h"
 
-
-#define HP(i, j) H [p[i]] [j]
-#define xP(i) x [p[i]]
-#define bP(i) b [p[i]]
+#define ABSTOL 1E-6
+#define RELTOL 1E-3
+#define MAX_ITER_REFINEMENT 500
 
 class Solver {
-    using Matrix = std::vector<std::vector<double> >;
-    using Vector = std::vector<double>;
+    using DoubleMatrix = std::vector<std::vector<double> >;
+    using DoubleVector = std::vector<double>;
+    using LongDoubleMatrix = std::vector<std::vector<long double> >;
+    using LongDoubleVector = std::vector<long double>;
 
 private:
     void permutate(int k, int line);
 
     int lineWithLargestPivot(int k);
 
-    void backwardSubstitution(Matrix *U, Vector *x, Vector *y);
+    void backwardSubstitution(DoubleMatrix *U, DoubleVector *x, DoubleVector *y);
 
-    void forwardSubstitution(Matrix *L, Vector *y, Vector *z);
+    void forwardSubstitution(DoubleMatrix *L, DoubleVector *y, DoubleVector *z);
 
-    void LUGEPP(Matrix *A);
+    void LUGEPP(DoubleMatrix *A);
+
+    void forwardSubstitution(DoubleMatrix *L, DoubleVector *y, LongDoubleVector *z);
 
 public:
-    Matrix H;
-    Vector x;
-    Vector b;
+    DoubleMatrix H;
+    DoubleVector x;
+    DoubleVector b;
     std::vector<int> p;
     size_t size;
     size_t nodesCount;
@@ -48,6 +51,14 @@ public:
 
     void solve();
 
+    void iterativeRefinement(const LongDoubleMatrix &vector);
+
+    double norm(DoubleVector vector);
+
     void stamp(std::vector<Component*> components);
+
+    void saveOriginalMatrix(LongDoubleMatrix *A);
+
+    void measureRefinementChanges(const DoubleVector &xBeforeRefinement) const;
 };
 #endif //BINS_MATRIX_MANAGER_H
