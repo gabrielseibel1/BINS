@@ -47,34 +47,14 @@ std::ostream &operator<<(std::ostream &os, const Solver &manager) {
     for (int j = 0; j < manager.size; ++j) {
         os << std::setw(5) << std::left << manager.x[manager.p[j]] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
     }
+    os << " ]\n";
+    os << "\n\tX (" << manager.size << "x1) = \n\t[ ";
+    for (int j = 0; j < manager.size; ++j) {
+        os << std::setw(5) << std::left << manager.x[j] << ((j + 1 < manager.size) ? " ]\n\t[ " : "");
+    }
     os << " ]\n\n";
     os << "}\n";
     return os;
-}
-
-void Solver::requiredPrint() {
-    printf("\n\n");
-    for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            printf("H(%d,%d) = %lf\n", i, j, H[i][j]);
-        }
-    }
-    printf("\n\n");
-    for (int j = 0; j < size; ++j) {
-        printf("X(%d) = %lf\n", j, x[j]);
-    }
-    printf("\n\n");
-    for (int j = 0; j < size; ++j) {
-        printf("B(%d) = %lf\n", j, b[j]);
-    }
-    printf("\n\n");
-    for (int j = 0; j < size; ++j) {
-        printf("P(%d) = %d\n", j, p[j]);
-    }
-    printf("\n\n");
-    for (int j = 0; j < size; ++j) {
-        printf("X(P(%d)) = %lf\n", j, x[p[j]]);
-    }
 }
 
 void Solver::LUGEPP(DoubleMatrix *A) {
@@ -235,7 +215,7 @@ int Solver::lineWithLargestPivot(int k) {
 void Solver::permutate(int line1, int line2) {
     if (line1 != line2) {
         int swap = p[line1];
-        p[line1] = line2;
+        p[line1] = p[line2];
         p[line2] = swap;
     }
 }
@@ -259,7 +239,32 @@ void Solver::saveOriginalMatrix(Solver::LongDoubleMatrix *A) {
 }
 
 void Solver::stamp(std::vector<Component*> components) {
-    for (auto &component : components) {
+    for (Component *component : components) {
         component->stamp(this);
     }
+}
+
+void Solver::interpretedPrint(SpiceInterpreter interpreter) {
+    std::cout << "\n\n";
+
+    NodeMap nodeMap = interpreter.getNodeMap();
+
+
+    std::string varType = "V";
+    for (auto pair: nodeMap.getNodeMap()) {
+        if (pair.second == 0) continue;
+
+        double value = x[p[pair.second - 1]];
+        std::cout << varType << "(" << pair.first << ") = " << value << "\n";
+    }
+
+    varType = "I";
+    for (Component *comp : interpreter.getComponents()) {
+        if (comp->group == GROUP2){
+            int index = static_cast<int>(nodeMap.getSize() - 1 + comp->indexInGroup);
+            double value = x[p[index]];
+            std::cout << varType << "(" << comp->label << ") = " << value << "\n";
+        }
+    }
+    std::cout << "\n\n";
 }

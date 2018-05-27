@@ -18,6 +18,8 @@ private:
     int next_node_int();
 
 public:
+    const std::map<std::string, int> &getNodeMap() const;
+
     size_t getSize();
 
     int nodeToInt(data_t *node);

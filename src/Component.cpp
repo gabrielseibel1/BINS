@@ -16,7 +16,7 @@ inline void stampIfNotGND(std::vector<double> *vector, int i, double value) {
 void Component::print() {
     printf("TYPE: %s\t\t", type);
     printf("GROUP: %d\t\t", group);
-    printf("ID: %d\t\t", indexInGroup);
+    printf("INDEX_IN_GROUP: %d\t\t", indexInGroup);
     printf("LABEL: %s\t\t", label);
     for (int i = 0; i < MAX_NODES; ++i) {
         if (nodes[i] != UNUSED_NODE) printf("NODE%d:\t%d\t", i, nodes[i]);
@@ -27,7 +27,7 @@ void Component::print() {
 }
 
 Component * ComponentFactory::createComponent(RowType type, char *label, int *nodes, data_t *value, char *controllerCurrent) {
-    switch (type) { //TODO decide group based on parsed info
+    switch (type) {
         case C: return new Capacitor(GROUP1, label, value, nodes);
         case D: return new Diode(GROUP1, label, value, nodes);
         case E: return new VCVS(GROUP2, label, value, nodes);

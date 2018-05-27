@@ -2,9 +2,11 @@
 #define BINS_MATRIX_MANAGER_H
 
 class Component;
+class SpiceInterpreter;
 
 #include <vector>
 #include "Component.h"
+#include "SpiceInterpreter.h"
 
 #define ABSTOL 1E-6
 #define RELTOL 1E-3
@@ -60,5 +62,7 @@ public:
     void saveOriginalMatrix(LongDoubleMatrix *A);
 
     void measureRefinementChanges(const DoubleVector &xBeforeRefinement) const;
+
+    void interpretedPrint(SpiceInterpreter interpreter);
 };
 #endif //BINS_MATRIX_MANAGER_H

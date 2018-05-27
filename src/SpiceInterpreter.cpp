@@ -190,7 +190,7 @@ bool SpiceInterpreter::interpretSpiceRow(row_t *spice_line) {
 void SpiceInterpreter::printComponentList() {
     printf("\nCOMPONENTS:\n");
 
-    for (auto &component : components) {
+    for (Component *component : components) {
         component->print();
     }
 }

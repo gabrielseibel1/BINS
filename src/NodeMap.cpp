@@ -47,3 +47,7 @@ std::ostream &operator<<(std::ostream &os, const NodeMap &map) {
 size_t NodeMap::getSize() {
     return nodeMap.size();
 }
+
+const std::map<std::string, int> &NodeMap::getNodeMap() const {
+    return nodeMap;
+}
