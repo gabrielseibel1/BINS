@@ -12,15 +12,13 @@ int main(int argc, char* argv[]) {
 
     char* filename = argv[1];
 
-    //std::cout << "\n\nReading <" << filename << "> ...\n\n";
-
     //read table
     SpiceReader reader = SpiceReader(filename);
     reader.read();
     table_t* spiceTable = reader.getSpiceTable();
 
     //validate table and extract info from it
-    SpiceInterpreter *interpreter = new SpiceInterpreter(spiceTable);
+    auto *interpreter = new SpiceInterpreter(spiceTable);
     interpreter->interpretSpiceTable();
     bool valid = interpreter->isValidSpiceTable();
 
@@ -40,17 +38,14 @@ int main(int argc, char* argv[]) {
                                nodeMap.getSize() - 1 /*don't count GND*/);
 
         solver.stamp(interpreter->getComponents());
-        std::cout << solver;
         solver.solve();
-        std::cout << solver;
-        solver.interpretedPrint(*interpreter);
+        solver.interpretedPrint(interpreter);
 
 
     } else {
         std::cout << "\n\nTo simulate the circuit, insert the command \".OP\" in your spice file.\n";
     }
 
-    //delete interpreter;
-    //std::cout << "\nExiting ... \n";
+    delete interpreter;
     return valid? 0 : 1;
 }

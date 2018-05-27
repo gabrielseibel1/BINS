@@ -244,10 +244,10 @@ void Solver::stamp(std::vector<Component*> components) {
     }
 }
 
-void Solver::interpretedPrint(SpiceInterpreter interpreter) {
-    std::cout << "\n\n";
+void Solver::interpretedPrint(SpiceInterpreter *interpreter) {
+    std::cout << "\n\nOPERATION POINT:\n";
 
-    NodeMap nodeMap = interpreter.getNodeMap();
+    NodeMap nodeMap = interpreter->getNodeMap();
 
 
     std::string varType = "V";
@@ -259,7 +259,7 @@ void Solver::interpretedPrint(SpiceInterpreter interpreter) {
     }
 
     varType = "I";
-    for (Component *comp : interpreter.getComponents()) {
+    for (Component *comp : interpreter->getComponents()) {
         if (comp->group == GROUP2){
             int index = static_cast<int>(nodeMap.getSize() - 1 + comp->indexInGroup);
             double value = x[p[index]];

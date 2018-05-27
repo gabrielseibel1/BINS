@@ -63,6 +63,6 @@ public:
 
     void measureRefinementChanges(const DoubleVector &xBeforeRefinement) const;
 
-    void interpretedPrint(SpiceInterpreter interpreter);
+    void interpretedPrint(SpiceInterpreter *interpreter);
 };
 #endif //BINS_MATRIX_MANAGER_H
