@@ -247,10 +247,8 @@ void Solver::stamp(std::vector<Component*> components) {
 void Solver::interpretedPrint(SpiceInterpreter *interpreter) {
     std::cout << "\n\nOPERATION POINT:\n";
 
-    NodeMap nodeMap = interpreter->getNodeMap();
-
-
     std::string varType = "V";
+    NodeMap nodeMap = interpreter->getNodeMap();
     for (auto pair: nodeMap.getNodeMap()) {
         if (pair.second == 0) continue;
 
