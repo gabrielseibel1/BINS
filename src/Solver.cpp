@@ -102,10 +102,8 @@ void Solver::backwardSubstitution(DoubleMatrix *U, DoubleVector *x, DoubleVector
 }
 
 void Solver::solve() {
+    //save original matrix for later iterative refinement
     LongDoubleMatrix A = LongDoubleMatrix(size);
-    for (int i = 0; i < size; ++i) {
-        A[i] = std::vector<long double>(size);
-    }
     saveOriginalMatrix(&A);
 
     LUGEPP(&H);
@@ -231,6 +229,9 @@ double Solver::norm(Solver::DoubleVector vector) {
 }
 
 void Solver::saveOriginalMatrix(Solver::LongDoubleMatrix *A) {
+    for (int i = 0; i < size; ++i) {
+        (*A)[i] = std::vector<long double>(size);
+    }
     for (int i = 0; i < size; ++i) {
         for (int j = 0; j < size; ++j) {
             (*A)[i][j] = H[i][j];
