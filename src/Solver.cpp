@@ -199,12 +199,10 @@ int Solver::lineWithLargestPivot(int k) {
     int line = k;
     double maxHik = H[p[k]][k];
     for (int i = k; i < size; ++i) {
-        if (p[i] > p[k]) {
-            double hik = H[p[i]][k];
-            if (hik > maxHik) {
-                maxHik = hik;
-                line = i;
-            }
+        double hik = H[p[i]][k];
+        if (hik > maxHik) {
+            maxHik = hik;
+            line = i;
         }
     }
     return line;
