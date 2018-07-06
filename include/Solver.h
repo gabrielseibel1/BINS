@@ -19,6 +19,8 @@ class Solver {
     using LongDoubleVector = std::vector<long double>;
 
 private:
+    size_t size;
+
     void permutate(int k, int line);
 
     int lineWithLargestPivot(int k);
@@ -31,37 +33,37 @@ private:
 
     void forwardSubstitution(DoubleMatrix *L, DoubleVector *y, LongDoubleVector *z);
 
+    double norm(DoubleVector vector);
+
+    void iterativeRefinement(const LongDoubleMatrix &vector);
+
+    void saveOriginalMatrix(LongDoubleMatrix *A);
+
+    void measureRefinementChanges(const DoubleVector &xBeforeRefinement) const;
+
 public:
     DoubleMatrix H;
     DoubleVector x;
+
     DoubleVector b;
+
     std::vector<int> p;
-    size_t size;
+
     size_t nodesCount;
 
     explicit Solver(size_t size, size_t group2Size);
 
     virtual ~Solver();
 
-    size_t getSize() const;
+    void stamp(std::vector<Component*> components);
+
+    void solveOP();
 
     friend std::ostream &operator<<(std::ostream &os, const Solver &manager);
 
-    void requiredPrint();
+    size_t getSize() const;
 
     void buildMatricesFromStdIn();
-
-    void solve();
-
-    void iterativeRefinement(const LongDoubleMatrix &vector);
-
-    double norm(DoubleVector vector);
-
-    void stamp(std::vector<Component*> components);
-
-    void saveOriginalMatrix(LongDoubleMatrix *A);
-
-    void measureRefinementChanges(const DoubleVector &xBeforeRefinement) const;
 
     void interpretedPrint(SpiceInterpreter *interpreter);
 };

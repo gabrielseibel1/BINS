@@ -101,7 +101,7 @@ void Solver::backwardSubstitution(DoubleMatrix *U, DoubleVector *x, DoubleVector
     }
 }
 
-void Solver::solve() {
+void Solver::solveOP() {
     //save original matrix for later iterative refinement
     LongDoubleMatrix A = LongDoubleMatrix(size);
     saveOriginalMatrix(&A);

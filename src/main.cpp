@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
                                nodeMap.getSize() - 1 /*don't count GND*/);
 
         solver.stamp(interpreter->getComponents());
-        solver.solve();
+        solver.solveOP();
         solver.interpretedPrint(interpreter);
 
 
