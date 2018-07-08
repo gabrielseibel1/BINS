@@ -47,8 +47,6 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const Solver &manager);
 
-    void requiredPrint();
-
     void buildMatricesFromStdIn();
 
     void solve();
