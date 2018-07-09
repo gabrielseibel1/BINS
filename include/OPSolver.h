@@ -2,17 +2,17 @@
 #define BINS_MATRIX_MANAGER_H
 
 class Component;
+class DynamicComponent;
 class SpiceInterpreter;
 
 #include <vector>
-#include "Component.h"
-#include "SpiceInterpreter.h"
+#include <ostream>
 
 #define ABSTOL 1E-6
 #define RELTOL 1E-3
 #define MAX_ITER_REFINEMENT 500
 
-class Solver {
+class OPSolver {
     using DoubleMatrix = std::vector<std::vector<double> >;
     using DoubleVector = std::vector<double>;
     using LongDoubleMatrix = std::vector<std::vector<long double> >;
@@ -39,28 +39,34 @@ public:
     size_t size;
     size_t nodesCount;
 
-    explicit Solver(size_t size, size_t group2Size);
+    explicit OPSolver(size_t size, size_t group1Size);
 
-    virtual ~Solver();
+    virtual ~OPSolver();
 
-    size_t getSize() const;
+    int getSize() const;
 
-    friend std::ostream &operator<<(std::ostream &os, const Solver &manager);
+    friend std::ostream &operator<<(std::ostream &os, const OPSolver &manager);
 
     void buildMatricesFromStdIn();
 
-    void solve();
+    void solveOP();
 
     void iterativeRefinement(const LongDoubleMatrix &vector);
 
     double norm(DoubleVector vector);
 
-    void stamp(std::vector<Component*> components);
+    void accumulativeStamp(std::vector<Component *> components);
+
+    void substitutiveStamp(std::vector<DynamicComponent *> components, double step);
 
     void saveOriginalMatrix(LongDoubleMatrix *A);
 
     void measureRefinementChanges(const DoubleVector &xBeforeRefinement) const;
 
     void interpretedPrint(SpiceInterpreter *interpreter);
+
+    void sum(OPSolver *pSolver);
+
+    void sub(OPSolver *pSolver);
 };
 #endif //BINS_MATRIX_MANAGER_H

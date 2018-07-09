@@ -10,7 +10,10 @@
 
 SpiceInterpreter::SpiceInterpreter(table_t *spiceTable) : spiceTable(spiceTable) {
     validSpiceTable = false;
-    simulationRequired = false;
+    opRequired = false;
+    tranRequired = false;
+    tranStep = 0;
+    tranMaxTime = 0;
     group1Count = 0;
     group2Count = 0;
 }
@@ -50,15 +53,74 @@ void SpiceInterpreter::interpretSpiceTable() {
 bool SpiceInterpreter::isValidCommand(row_t *row) {
     row->type = CMD;
     if (strcmp(row->cells->data->value._string, ".OP") == 0) {
-        simulationRequired = true;
+        opRequired = true;
+    }
+    if (strcmp(row->cells->data->value._string, ".TRAN") == 0) {
+
+        //assert time step specified
+        auto stepCell = row->cells->next_cell;
+        if (stepCell) {
+            checkIfDataHasUnitPrefix(stepCell->data);
+            tranStep = stepCell->data->value._double;
+
+            //assert maxTime specified
+            auto maxTimeCell = stepCell->next_cell;
+            if (maxTimeCell) {
+                checkIfDataHasUnitPrefix(maxTimeCell->data);
+                tranMaxTime = maxTimeCell->data->value._double;
+
+                //can do .TRAN
+                tranRequired = true;
+            }
+        }
     }
     return true;
+}
+
+void SpiceInterpreter::checkIfDataHasInitialCondition(data_t *data, double *pInitialCondition) {
+    if (data->type == CELL_DATA_TYPE_STRING) {
+
+        //get first three chars
+        char initial_condition_prefix[4] = { 'x', 'x' , 'x', '\0'};
+        strncpy(initial_condition_prefix, data->value._string, 3);
+
+        //compare with "IC="
+        if (strcmp(initial_condition_prefix, "IC=") != 0) {
+            data->value._double = 0;
+            return;
+        }
+
+        char *start_pt = data->value._string;
+        char *end_pt;
+        double double_data = strtod(data->value._string + 3, &end_pt);
+
+        if (end_pt != nullptr && *end_pt != '\0') {// raw_data contained something else after the double
+            int exponent = 0;
+
+            if (strcmp(end_pt, "F") == 0)           exponent = FEMTO;
+            else if (strcmp(end_pt, "P") == 0)      exponent = PICO;
+            else if (strcmp(end_pt, "N") == 0)      exponent = NANO;
+            else if (strcmp(end_pt, "U") == 0)      exponent = MICRO;
+            else if (strcmp(end_pt, "M") == 0)      exponent = MILLI;
+            else if (strcmp(end_pt, "K") == 0)      exponent = KILO;
+            else if (strcmp(end_pt, "MEG") == 0)    exponent = MEGA;
+            else if (strcmp(end_pt, "G") == 0)      exponent = GIGA;
+            else if (strcmp(end_pt, "T") == 0)      exponent = TERA;
+
+            if (exponent != 0) { // found a prefix
+                data->type = CELL_DATA_TYPE_DOUBLE;
+                data->value._double = double_data * powf(10, exponent);
+                free(start_pt);
+            }
+        }
+
+        *pInitialCondition = double_data;
+    }
 }
 
 void SpiceInterpreter::checkIfDataHasUnitPrefix(data_t *data) {
 
     if (data->type == CELL_DATA_TYPE_STRING) {
-
         char *start_pt = data->value._string;
         char *end_pt;
         double double_data = strtod(data->value._string, &end_pt);
@@ -93,6 +155,7 @@ bool SpiceInterpreter::validateAndSaveComponent(row_t *spice_line, int nodeCount
     int nodes[MAX_NODES] = {UNUSED_NODE, UNUSED_NODE, UNUSED_NODE, UNUSED_NODE};
     data_t *value = nullptr;
     char* controllerCurrent = nullptr;
+    double initialCondition = 0;
 
     for (int i = 0; i < nodeCount + 2 /*label + nodes + value*/; ++i) {
         if (!cell) {
@@ -117,12 +180,22 @@ bool SpiceInterpreter::validateAndSaveComponent(row_t *spice_line, int nodeCount
     }
 
     if (cell) {
-        fprintf(stderr, "[Line %d] Too many parameters for component!\n", spice_line->index + 1);
-        return false;
+        if (component_type == C || component_type == L) { //check for initial conditions in extra cell
+            checkIfDataHasInitialCondition(cell->data, &initialCondition);
+
+            if (cell->next_cell) {
+                fprintf(stderr, "[Line %d] Too many parameters for component!\n", spice_line->index + 1);
+                return false;
+            }
+        } else {
+            fprintf(stderr, "[Line %d] Too many parameters for component!\n", spice_line->index + 1);
+            return false;
+        }
     }
 
     ComponentFactory factory = ComponentFactory();
-    Component *component = factory.createComponent(component_type, label, nodes, value, controllerCurrent);
+    Component *component = factory.createComponent(component_type, label, nodes, value, controllerCurrent,
+                                                   initialCondition);
     spice_line->type = component_type;
     components.insert(components.end(), component);
 
@@ -229,10 +302,14 @@ int SpiceInterpreter::getGroup2Count() const {
     return group2Count;
 }
 
-const NodeMap &SpiceInterpreter::getNodeMap() const {
-    return nodeMap;
+NodeMap *SpiceInterpreter::getNodeMap() {
+    return &nodeMap;
 }
 
-bool SpiceInterpreter::simulationIsRequired() const {
-    return simulationRequired;
+bool SpiceInterpreter::OPIsRequired() const {
+    return opRequired;
+}
+
+bool SpiceInterpreter::tranIsRequired() const {
+    return tranRequired;
 }

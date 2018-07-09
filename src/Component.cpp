@@ -26,16 +26,17 @@ void Component::print() {
     printf("\n");
 }
 
-Component * ComponentFactory::createComponent(RowType type, char *label, int *nodes, data_t *value, char *controllerCurrent) {
+Component * ComponentFactory::createComponent(RowType type, char *label, int *nodes, data_t *value,
+                                              char *controllerCurrent, double initialCondition) {
     switch (type) {
-        case C: return new Capacitor(GROUP1, label, value, nodes);
+        case C: return new Capacitor(GROUP2, label, value, nodes, initialCondition);
         case D: return new Diode(GROUP1, label, value, nodes);
         case E: return new VCVS(GROUP2, label, value, nodes);
         case F: return new CCCS(GROUP1, label, value, nodes, controllerCurrent);
         case G: return new VCCS(GROUP1, label, value, nodes);
         case H: return new CCVS(GROUP2, label, value, nodes, controllerCurrent);
         case I: return new ISource(GROUP1, label, value, nodes);
-        case L: return new Inductor(GROUP1, label, value, nodes);
+        case L: return new Inductor(GROUP1, label, value, nodes, initialCondition);
         case M: return new MOSFET(GROUP1, label, value, nodes);
         case Q: return new BJT(GROUP1, label, value, nodes);
         case R: return new Resistor(GROUP1, label, value, nodes);
@@ -60,17 +61,6 @@ Component * Component::getControllerIfExists(std::vector<Component *> components
     return nullptr; //do nothing, for default. Should be overridden by CC sources
 }
 
-//CAPACITOR
-
-Capacitor::Capacitor(Group group, char *label, data_t *value, int *nodes) : Component(
-        group, label, value, nodes) {
-    type = strdup(CAPACITOR_STR);
-}
-
-void Capacitor::stamp(Solver *solver) {
-    
-}
-
 //DIODE
 
 Diode::Diode(Group group, char *label, data_t *value, int *nodes) : Component(
@@ -78,7 +68,7 @@ Diode::Diode(Group group, char *label, data_t *value, int *nodes) : Component(
     type = strdup(DIODE_STR);
 }
 
-void Diode::stamp(Solver *solver) {
+void Diode::stamp(OPSolver *solver) {
     
 }
 
@@ -89,7 +79,7 @@ VCVS::VCVS(Group group, char *label, data_t *value, int *nodes) : Component(
     type = strdup(VCVS_STR);
 }
 
-void VCVS::stamp(Solver *solver) {
+void VCVS::stamp(OPSolver *solver) {
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
     int nodeVxP = nodes[2] - 1, nodeVxM = nodes[3] - 1;
     int group2Index = (int) solver->nodesCount + indexInGroup;
@@ -110,7 +100,7 @@ CCCS::CCCS(Group group, char *label, data_t *value, int *nodes, char* controller
     this->controllerCurrent = controllerCurrent;
 }
 
-void CCCS::stamp(Solver *solver) {
+void CCCS::stamp(OPSolver *solver) {
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
     int controlCurrentIndex = (int) solver->nodesCount + controller->indexInGroup;
     if (group == GROUP1) {
@@ -162,7 +152,7 @@ VCCS::VCCS(Group group, char *label, data_t *value, int *nodes) : Component(
     type = strdup(VCCS_STR);
 }
 
-void VCCS::stamp(Solver *solver) {
+void VCCS::stamp(OPSolver *solver) {
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
     int nodeVxP = nodes[2] - 1, nodeVxM = nodes[3] - 1;
     if (group == GROUP1) {
@@ -190,7 +180,7 @@ CCVS::CCVS(Group group, char *label, data_t *value, int *nodes, char *controller
     this->controllerCurrent = controllerCurrent;
 }
 
-void CCVS::stamp(Solver *solver) {
+void CCVS::stamp(OPSolver *solver) {
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
     int group2Index = (int) solver->nodesCount + indexInGroup;
     int controlCurrentIndex = (int) solver->nodesCount + controller->indexInGroup;
@@ -237,7 +227,7 @@ ISource::ISource(Group group, char *label, data_t *value, int *nodes) : Componen
     type = strdup(I_SOURCE_STR);
 }
 
-void ISource::stamp(Solver *solver) {
+void ISource::stamp(OPSolver *solver) {
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
     if (group == GROUP1) {
         stampIfNotGND(&solver->b, nodeVPlus, -value->value._double);
@@ -253,17 +243,6 @@ void ISource::stamp(Solver *solver) {
     }
 }
 
-//INDUCTOR
-
-Inductor::Inductor(Group group, char *label, data_t *value, int *nodes) : Component(
-        group, label, value, nodes) {
-    type = strdup(INDUCTOR_STR);
-}
-
-void Inductor::stamp(Solver *solver) {
-    
-}
-
 //MOSFET
 
 MOSFET::MOSFET(Group group, char *label, data_t *value, int *nodes) : Component(
@@ -271,8 +250,8 @@ MOSFET::MOSFET(Group group, char *label, data_t *value, int *nodes) : Component(
     type = strdup(MOSFET_STR);
 }
 
-void MOSFET::stamp(Solver *solver) {
-    
+void MOSFET::stamp(OPSolver *solver) {
+
 }
 
 //BJT
@@ -282,8 +261,8 @@ BJT::BJT(Group group, char *label, data_t *value, int *nodes) : Component(
     type = strdup(BJT_STR);
 }
 
-void BJT::stamp(Solver *solver) {
-    
+void BJT::stamp(OPSolver *solver) {
+
 }
 
 //RESISTOR
@@ -293,7 +272,7 @@ Resistor::Resistor(Group group, char *label, data_t *value, int *nodes) : Compon
     type = strdup(RESISTOR_STR);
 }
 
-void Resistor::stamp(Solver *solver) {
+void Resistor::stamp(OPSolver *solver) {
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
     if (group == GROUP1) {
         stampIfNotGND(&solver->H, nodeVPlus, nodeVPlus, 1/value->value._double);
@@ -319,7 +298,7 @@ VSource::VSource(Group group, char *label, data_t *value, int *nodes) : Componen
     type = strdup(V_SOURCE_STR);
 }
 
-void VSource::stamp(Solver *solver) {
+void VSource::stamp(OPSolver *solver) {
     int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1, group2Index = (int) solver->nodesCount + indexInGroup;
 
     stampIfNotGND(&solver->H, nodeVPlus, group2Index, 1);

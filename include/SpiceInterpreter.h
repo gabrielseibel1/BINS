@@ -28,7 +28,8 @@ class SpiceInterpreter {
 private:
     table_t *spiceTable;
     bool validSpiceTable;
-    bool simulationRequired;
+    bool opRequired;
+    bool tranRequired;
     std::vector<Component*> components;
     std::vector<std::string> actions;
     NodeMap nodeMap;
@@ -66,13 +67,18 @@ private:
     int getNodeNumber(data_t *string);
 
 public:
+    double tranStep;
+    double tranMaxTime;
+
     explicit SpiceInterpreter(table_t *spiceTable);
 
     virtual ~SpiceInterpreter();
 
     bool isValidSpiceTable() const;
 
-    bool simulationIsRequired() const;
+    bool OPIsRequired() const;
+
+    bool tranIsRequired() const;
 
     const std::vector<Component*> &getComponents() const;
 
@@ -91,7 +97,9 @@ public:
 
     int getGroup2Count() const;
 
-    const NodeMap &getNodeMap() const;
+    NodeMap *getNodeMap();
+
+    void checkIfDataHasInitialCondition(data_t *data, double *pInitialCondition);
 };
 
 #endif //BINS_SPICE_INTERPRETER_H

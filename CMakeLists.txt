@@ -12,8 +12,10 @@ add_executable(
         include/SpiceInterpreter.h
         src/NodeMap.cpp
         include/NodeMap.h
-        src/Solver.cpp
-        include/Solver.h
+        src/OPSolver.cpp
+        include/OPSolver.h
         src/Component.cpp
-        include/Component.h)
+        include/Component.h
+        src/TranSolver.cpp
+        src/TranSolver.h include/DynamicComponent.cpp)
 

@@ -5,11 +5,11 @@
 #ifndef BINS_COMPONENT_H
 #define BINS_COMPONENT_H
 
-class Solver;
+class OPSolver;
 
 #include <ostream>
 #include "table.h"
-#include "Solver.h"
+#include "OPSolver.h"
 
 #define UNUSED_NODE (-1)
 #define MAX_NODES 4
@@ -55,29 +55,58 @@ public:
 
     virtual ~Component();
 
-    virtual void stamp(Solver *solver) = 0;
+    virtual void stamp(OPSolver *solver) = 0;
 
     virtual void print();
 
     virtual Component * getControllerIfExists(std::vector<Component *> components);
 };
 
-class Capacitor: public Component {
+class DynamicComponent : public Component {
+
 public:
-    //char type[10] = "CAPACITOR";
-    void stamp(Solver *solver) override;
-    Capacitor(Group group, char *label, data_t *value, int *nodes);
+    double u;
+    double i;
+    DynamicComponent(Group group, char *label, data_t *value, const int *nodes);
+
+    virtual double nextSourceValue(double h) = 0;
+
+    void stamp(OPSolver *solver) override;
+
+    virtual void hardStamp(OPSolver *solver, double step) = 0;
+};
+
+class Capacitor: public DynamicComponent {
+    double capacitance;
+public:
+    /**
+     * Calculate next voltage
+     */
+    double nextSourceValue(double h) override;
+    void hardStamp(OPSolver *solver, double step) override;
+    Capacitor(Group group, char *label, data_t *value, int *nodes, double initialCondition);
+};
+
+class Inductor: public DynamicComponent {
+    double inductance;
+public:
+    /**
+     * Calculate next current
+     */
+    double nextSourceValue(double h) override;
+    void hardStamp(OPSolver *solver, double step) override;
+    Inductor(Group group, char *label, data_t *value, int *nodes, double initialCondition);
 };
 
 class Diode: public Component {
 public:
-    void stamp(Solver *solver) override;
+    void stamp(OPSolver *solver) override;
     Diode(Group group, char *label, data_t *value, int *nodes);
 };
 
 class VCVS: public Component {
 public:
-    void stamp(Solver *solver) override;
+    void stamp(OPSolver *solver) override;
     VCVS(Group group, char *label, data_t *value, int *nodes);
 };
 
@@ -85,7 +114,7 @@ class CCCS: public Component {
 public:
     char *controllerCurrent;
     Component *controller;
-    void stamp(Solver *solver) override;
+    void stamp(OPSolver *solver) override;
     void print() override;
     Component *getControllerIfExists(std::vector<Component *> components) override;
     ~CCCS() override;
@@ -94,7 +123,7 @@ public:
 
 class VCCS: public Component {
 public:
-    void stamp(Solver *solver) override;
+    void stamp(OPSolver *solver) override;
     VCCS(Group group, char *label, data_t *value, int *nodes);
 };
 
@@ -102,7 +131,7 @@ class CCVS: public Component {
 public:
     char *controllerCurrent;
     Component *controller;
-    void stamp(Solver *solver) override;
+    void stamp(OPSolver *solver) override;
     void print() override;
     Component * getControllerIfExists(std::vector<Component *> components) override;
     ~CCVS() override;
@@ -111,43 +140,39 @@ public:
 
 class ISource: public Component {
 public:
-    void stamp(Solver *solver) override;
+    void stamp(OPSolver *solver) override;
     ISource(Group group, char *label, data_t *value, int *nodes);
-};
-
-class Inductor: public Component {
-public:
-    void stamp(Solver *solver) override;
-    Inductor(Group group, char *label, data_t *value, int *nodes);
 };
 
 class MOSFET: public Component {
 public:
-    void stamp(Solver *solver) override;
+    void stamp(OPSolver *solver) override;
     MOSFET(Group group, char *label, data_t *value, int *nodes);
 };
 
 class BJT: public Component {
 public:
-    void stamp(Solver *solver) override;
+    void stamp(OPSolver *solver) override;
     BJT(Group group, char *label, data_t *value, int *nodes);
 };
 
 class Resistor: public Component {
 public:
-    void stamp(Solver *solver) override;
+    void stamp(OPSolver *solver) override;
     Resistor(Group group, char *label, data_t *value, int *nodes);
 };
 
 class VSource: public Component {
 public:
-    void stamp(Solver *solver) override;
+    void stamp(OPSolver *solver) override;
     VSource(Group group, char *label, data_t *value, int *nodes);
 };
 
 class ComponentFactory {
 public:
-    Component *createComponent(RowType type, char *label, int *nodes, data_t *value, char *controllerCurrent);
+    Component *
+    createComponent(RowType type, char *label, int *nodes, data_t *value, char *controllerCurrent,
+                    double initialCondition);
 };
 
 #endif //BINS_COMPONENT_H
