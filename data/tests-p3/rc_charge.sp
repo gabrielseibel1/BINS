@@ -1,0 +1,5 @@
+RC circuit
+V1 1 0 10
+R1 1 2 100
+C1 2 0 10u
+.TRAN 1E-6 5E-3
