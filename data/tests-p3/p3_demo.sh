@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#././../../bin/BINS-p3 rc_charge.sp rc_charge.dat
-#././../../bin/BINS-p3 rc_discharge.sp rc_discharge.dat
-gnuplot -p rc_charge.gnu
-gnuplot -p rc_discharge.gnu
+cd rc_charge
+source rc_charge_demo.sh
+cd ../rc_discharge/
+source rc_discharge_demo.sh
