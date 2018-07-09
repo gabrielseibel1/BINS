@@ -61,7 +61,7 @@ void TranSolver::solveTransient() {
         //recalculate U and I for capacitors, inductors and dynamic sources
         updateDynamicComponents(time, opSolver);
 
-        opSolver->interpretedPrint(spiceInterpreter);
+        //opSolver->interpretedPrint(spiceInterpreter);
     }
 
 }
