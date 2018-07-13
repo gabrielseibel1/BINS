@@ -3,3 +3,7 @@ cd rc_charge
 source rc_charge_demo.sh
 cd ../rc_discharge/
 source rc_discharge_demo.sh
+cd ../rl_charge/
+source rl_charge_demo.sh
+cd ../rl_discharge/
+source rl_discharge_demo.sh

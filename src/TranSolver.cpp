@@ -36,12 +36,14 @@ TranSolver::~TranSolver() {
 }
 
 void TranSolver::solveTransient() {
-    opSolver->accumulativeStamp(staticComponents);
 
     auto dynMatrices = new OPSolver(size, nodeCount);
 
 
     for (double time = 0; time < maxTime; time += step) {
+        opSolver = new OPSolver(size, nodeCount);
+        opSolver->accumulativeStamp(staticComponents);
+
         //(substitutive) stamp dynamic components, considering their U and I at this time
         dynMatrices->substitutiveStamp(dynamicComponents, step);
 
@@ -51,8 +53,6 @@ void TranSolver::solveTransient() {
         //solve for current time
         opSolver->solveOP();
 
-        //subtract contributions of dynamic elements
-        opSolver->sub(dynMatrices);
 
         //save solution
         auto solution = std::make_pair(time, opSolver->x);
@@ -61,18 +61,31 @@ void TranSolver::solveTransient() {
         //recalculate U and I for capacitors, inductors and dynamic sources
         updateDynamicComponents(time, opSolver);
 
-        //opSolver->interpretedPrint(spiceInterpreter);
+        //subtract contributions of dynamic elements
+        opSolver->sub(dynMatrices);
+
+        opSolver->interpretedPrint(spiceInterpreter);
     }
 
 }
 
-void TranSolver::updateDynamicComponents(double time, OPSolver *opSolver) {
+void TranSolver::updateDynamicComponents(double time, OPSolver *solver) {
     for (auto *component : dynamicComponents) {
         if (strcmp(component->type, CAPACITOR_STR) == 0) {
             component->u = component->nextSourceValue(step);
-            component->i = opSolver->x[opSolver->p[nodeCount + component->indexInGroup]];
+            component->i = solver->x[solver->p[nodeCount + component->indexInGroup]];
         } else if (strcmp(component->type, INDUCTOR_STR) == 0) {
+            //TODO check group
+            component->i = component->nextSourceValue(step);
 
+            int nodeVPlus = component->nodes[0] - 1, nodeVMinus = component->nodes[1] - 1;
+            if (nodeVPlus == 0) {
+                component->u = solver->x[solver->p[nodeVMinus]];
+            } else if (nodeVMinus == 0) {
+                component->u = solver->x[solver->p[nodeVPlus]];
+            } else {
+                component->u = solver->x[solver->p[nodeVPlus]] - solver->x[solver->p[nodeVMinus]];
+            }
         } /*else if (component->type == SINE_SOURCE_STR) {
 
 

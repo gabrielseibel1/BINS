@@ -1,3 +1,4 @@
+set term wxt title 'RC Charge'
 set multiplot                       # multiplot mode (prompt changes to 'multiplot')
 set size 1, 0.5
 
