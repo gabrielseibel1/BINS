@@ -244,9 +244,9 @@ void OPSolver::accumulativeStamp(std::vector<Component *> components) {
     }
 }
 
-void OPSolver::substitutiveStamp(std::vector<DynamicComponent *> dynamicComponents, double step) {
+void OPSolver::substitutiveStamp(std::vector<DynamicComponent *> dynamicComponents, double step, double time) {
     for (DynamicComponent *component : dynamicComponents) {
-        component->hardStamp(this, step);
+        component->hardStamp(this, step, time);
     }
 }
 

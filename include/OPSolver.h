@@ -57,7 +57,7 @@ public:
 
     void accumulativeStamp(std::vector<Component *> components);
 
-    void substitutiveStamp(std::vector<DynamicComponent *> components, double step);
+    void substitutiveStamp(std::vector<DynamicComponent *> components, double step, double time);
 
     void saveOriginalMatrix(LongDoubleMatrix *A);
 

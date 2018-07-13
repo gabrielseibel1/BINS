@@ -58,7 +58,7 @@ private:
     /**
      * Takes a data_t* and checks if it need to be have itś value set to a float multiplied by a unit prefix
      */
-    void checkIfDataHasUnitPrefix(data_t *data);
+    void checkIfDataHasUnitPrefix(data_t *data, int offset);
 
     /**
      * Returns correspondent int node for the given string.
@@ -100,6 +100,8 @@ public:
     NodeMap *getNodeMap();
 
     void checkIfDataHasInitialCondition(data_t *data, double *pInitialCondition);
+
+    RowType checkIfCellHasSpecialVSource(cell_t *cell, SineParams **sineParams, PWLParams **pwlParams);
 };
 
 #endif //BINS_SPICE_INTERPRETER_H

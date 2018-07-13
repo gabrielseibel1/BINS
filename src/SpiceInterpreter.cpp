@@ -60,13 +60,13 @@ bool SpiceInterpreter::isValidCommand(row_t *row) {
         //assert time step specified
         auto stepCell = row->cells->next_cell;
         if (stepCell) {
-            checkIfDataHasUnitPrefix(stepCell->data);
+            checkIfDataHasUnitPrefix(stepCell->data, 0);
             tranStep = stepCell->data->value._double;
 
             //assert maxTime specified
             auto maxTimeCell = stepCell->next_cell;
             if (maxTimeCell) {
-                checkIfDataHasUnitPrefix(maxTimeCell->data);
+                checkIfDataHasUnitPrefix(maxTimeCell->data, 0);
                 tranMaxTime = maxTimeCell->data->value._double;
 
                 //can do .TRAN
@@ -75,6 +75,54 @@ bool SpiceInterpreter::isValidCommand(row_t *row) {
         }
     }
     return true;
+}
+
+/**
+ * Search for "SIN(" or "PWL(" and set sineParams or PWLParams if needed
+ */
+RowType SpiceInterpreter::checkIfCellHasSpecialVSource(cell_t *cell, SineParams **sineParams, PWLParams **pwlParams) {
+    RowType type = V;
+    data_t *data = cell->data;
+
+    if (data->type == CELL_DATA_TYPE_STRING) {
+
+        //get first three chars
+        char prefix[5] = { 'x', 'x', 'x', 'x', '\0'};
+        strncpy(prefix, data->value._string, 4);
+
+        //compare with "SIN("
+        if (strcmp(prefix, "SIN(") == 0) {
+            type = S;
+
+            //fill sine parameters
+            *sineParams = static_cast<SineParams *>(malloc(sizeof(SineParams)));
+            for (int i = 0; i < 4; ++i) { //get for SIN parameters
+
+                //get double value
+                checkIfDataHasUnitPrefix(cell->data, /*offset for "SIN("*/(i == 0) ? 4 : 0);
+                double value = cell->data->value._double;
+
+                switch (i) {
+                    case 0: (*sineParams)->dcOffset = value; break;
+                    case 1: (*sineParams)->amplitude = value; break;
+                    case 2: (*sineParams)->frequency = value; break;
+                    case 3: (*sineParams)->phase = value; break;
+                    default: break;
+                }
+
+                cell = cell->next_cell;
+            }
+
+            //TODO check close parentheses
+
+        //compare with "PWL("
+        } else if (strcmp(prefix, "PWL(") == 0) {
+            type = P;
+            //TODO fill PWL params
+        }
+    }
+
+    return type;
 }
 
 void SpiceInterpreter::checkIfDataHasInitialCondition(data_t *data, double *pInitialCondition) {
@@ -114,19 +162,19 @@ void SpiceInterpreter::checkIfDataHasInitialCondition(data_t *data, double *pIni
             }
         }
 
-        *pInitialCondition = double_data;
+        *pInitialCondition = data->value._double;
     }
 }
 
-void SpiceInterpreter::checkIfDataHasUnitPrefix(data_t *data) {
+void SpiceInterpreter::checkIfDataHasUnitPrefix(data_t *data, int offset) {
 
     if (data->type == CELL_DATA_TYPE_STRING) {
         char *start_pt = data->value._string;
         char *end_pt;
-        double double_data = strtod(data->value._string, &end_pt);
+        double double_data = strtod(data->value._string + offset, &end_pt);
 
+        int exponent = 0;
         if (end_pt != nullptr && *end_pt != '\0') {// raw_data contained something else after the double
-            int exponent = 0;
 
             if (strcmp(end_pt, "F") == 0)           exponent = FEMTO;
             else if (strcmp(end_pt, "P") == 0)      exponent = PICO;
@@ -137,13 +185,16 @@ void SpiceInterpreter::checkIfDataHasUnitPrefix(data_t *data) {
             else if (strcmp(end_pt, "MEG") == 0)    exponent = MEGA;
             else if (strcmp(end_pt, "G") == 0)      exponent = GIGA;
             else if (strcmp(end_pt, "T") == 0)      exponent = TERA;
-
-            if (exponent != 0) { // found a prefix
-                data->type = CELL_DATA_TYPE_DOUBLE;
-                data->value._double = double_data * powf(10, exponent);
-                free(start_pt);
+            else if (strcmp(end_pt, ")") == 0)      exponent = 0;
+            else {
+                fprintf(stderr, "Unexpected %s!\n", end_pt);
+                exit(EXIT_FAILURE);
             }
         }
+
+        data->type = CELL_DATA_TYPE_DOUBLE;
+        data->value._double = double_data * powf(10, exponent);
+        free(start_pt);
     }
 }
 
@@ -156,6 +207,9 @@ bool SpiceInterpreter::validateAndSaveComponent(row_t *spice_line, int nodeCount
     data_t *value = nullptr;
     char* controllerCurrent = nullptr;
     double initialCondition = 0;
+    SineParams *sineParams = nullptr;
+    PWLParams *pwlParams = nullptr;
+    RowType specialVSourceType = V;
 
     for (int i = 0; i < nodeCount + 2 /*label + nodes + value*/; ++i) {
         if (!cell) {
@@ -166,8 +220,15 @@ bool SpiceInterpreter::validateAndSaveComponent(row_t *spice_line, int nodeCount
         if (i == 0) { //if its first cell, get label
             label = strdup(cell->data->value._string);
         } else if (i == nodeCount + 1) { //last cell contains value
-            checkIfDataHasUnitPrefix(cell->data);
+
+            if (component_type == V) { //search for SIN or PWL
+                specialVSourceType = checkIfCellHasSpecialVSource(cell, &sineParams, &pwlParams);
+            }
+
+            //get double value
+            checkIfDataHasUnitPrefix(cell->data, 0);
             value = cell->data;
+
         } else { //the current cell is a node
             //current-controlled sources have third "node" as label for controller-current element
             if ((component_type == F || component_type == H) && i == nodeCount) {
@@ -179,7 +240,7 @@ bool SpiceInterpreter::validateAndSaveComponent(row_t *spice_line, int nodeCount
         cell = cell->next_cell;
     }
 
-    if (cell) {
+    if (cell && specialVSourceType == V) { //too many cells?
         if (component_type == C || component_type == L) { //check for initial conditions in extra cell
             checkIfDataHasInitialCondition(cell->data, &initialCondition);
 
@@ -194,8 +255,8 @@ bool SpiceInterpreter::validateAndSaveComponent(row_t *spice_line, int nodeCount
     }
 
     ComponentFactory factory = ComponentFactory();
-    Component *component = factory.createComponent(component_type, label, nodes, value, controllerCurrent,
-                                                   initialCondition);
+    Component *component = factory.createComponent((specialVSourceType != V) ? specialVSourceType: component_type,
+            label, nodes, value, controllerCurrent, initialCondition, sineParams, pwlParams);
     spice_line->type = component_type;
     components.insert(components.end(), component);
 

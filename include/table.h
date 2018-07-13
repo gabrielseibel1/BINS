@@ -23,7 +23,9 @@ enum RowType {
     /** MOSFET    */ M,
     /** BJT       */ Q,
     /** RESISTOR  */ R,
-    /** VOL SOURCE*/ V
+    /** VOL SOURCE*/ V,
+    /** SIN SOURCE*/ S,
+    /** PWL SOURCE*/ P
 };
 
 #define CELL_DATA_TYPE_STRING 0

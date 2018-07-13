@@ -24,7 +24,8 @@ TranSolver::TranSolver(SpiceInterpreter *interpreter) {
     //separate references to dynamic components from static ones
     for (auto *component : interpreter->getComponents()) {
         if (strcmp(component->type, CAPACITOR_STR) == 0 ||
-            strcmp(component->type, INDUCTOR_STR) == 0)
+            strcmp(component->type, INDUCTOR_STR) == 0 ||
+            strcmp(component->type, SINE_SOURCE_STR) == 0)
             dynamicComponents.emplace_back(dynamic_cast<DynamicComponent*>(component));
         else
             staticComponents.emplace_back(component);
@@ -45,7 +46,7 @@ void TranSolver::solveTransient() {
         opSolver->accumulativeStamp(staticComponents);
 
         //(substitutive) stamp dynamic components, considering their U and I at this time
-        dynMatrices->substitutiveStamp(dynamicComponents, step);
+        dynMatrices->substitutiveStamp(dynamicComponents, step, time);
 
         //add contributions of dynamic elements
         opSolver->sum(dynMatrices);
@@ -59,7 +60,9 @@ void TranSolver::solveTransient() {
         solutions.emplace_back(solution);
 
         //recalculate U and I for capacitors, inductors and dynamic sources
-        updateDynamicComponents(time, opSolver);
+        updateDynamicComponents(opSolver);
+
+        std::cout << *opSolver;
 
         //subtract contributions of dynamic elements
         opSolver->sub(dynMatrices);
@@ -69,13 +72,15 @@ void TranSolver::solveTransient() {
 
 }
 
-void TranSolver::updateDynamicComponents(double time, OPSolver *solver) {
+void TranSolver::updateDynamicComponents(OPSolver *solver) {
     for (auto *component : dynamicComponents) {
         if (strcmp(component->type, CAPACITOR_STR) == 0) {
+
             component->u = component->nextSourceValue(step);
             component->i = solver->x[solver->p[nodeCount + component->indexInGroup]];
+
         } else if (strcmp(component->type, INDUCTOR_STR) == 0) {
-            //TODO check group
+
             component->i = component->nextSourceValue(step);
 
             int nodeVPlus = component->nodes[0] - 1, nodeVMinus = component->nodes[1] - 1;
@@ -86,14 +91,8 @@ void TranSolver::updateDynamicComponents(double time, OPSolver *solver) {
             } else {
                 component->u = solver->x[solver->p[nodeVPlus]] - solver->x[solver->p[nodeVMinus]];
             }
-        } /*else if (component->type == SINE_SOURCE_STR) {
 
-
-        } else if (component->type == PWL_SOURCE_STR) {
-
-
-        }*/
-
+        }
     }
 }
 

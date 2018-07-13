@@ -44,7 +44,7 @@ public:
 
     void solveTransient();
 
-    void updateDynamicComponents(double time, OPSolver *opSolver);
+    void updateDynamicComponents(OPSolver *opSolver);
 
     void printSolutions(char *filename);
 };

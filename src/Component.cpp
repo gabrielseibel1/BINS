@@ -26,8 +26,8 @@ void Component::print() {
     printf("\n");
 }
 
-Component * ComponentFactory::createComponent(RowType type, char *label, int *nodes, data_t *value,
-                                              char *controllerCurrent, double initialCondition) {
+Component * ComponentFactory::createComponent(RowType type, char *label, int *nodes, data_t *value, char *controllerCurrent, double initialCondition,
+                                              SineParams *sineParams, PWLParams *pwlParams) {
     switch (type) {
         case C: return new Capacitor(GROUP2, label, value, nodes, initialCondition);
         case D: return new Diode(GROUP1, label, value, nodes);
@@ -41,6 +41,8 @@ Component * ComponentFactory::createComponent(RowType type, char *label, int *no
         case Q: return new BJT(GROUP1, label, value, nodes);
         case R: return new Resistor(GROUP1, label, value, nodes);
         case V: return new VSource(GROUP2, label, value, nodes);
+        case S: return new SineSource(GROUP2, label, value, nodes, sineParams);
+        //TODO case PWL
         case CMD: case CMT: return nullptr;
     }
 }

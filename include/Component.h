@@ -8,6 +8,7 @@
 class OPSolver;
 
 #include <ostream>
+#include <vector>
 #include "table.h"
 #include "OPSolver.h"
 
@@ -42,6 +43,8 @@ static const char *const RESISTOR_STR = "RESISTOR ";
 
 static const char *const V_SOURCE_STR = "V-SOURCE ";
 
+static const char *const SINE_SOURCE_STR = "SINE     ";
+
 class Component {
 public:
     Group group;
@@ -73,7 +76,7 @@ public:
 
     void stamp(OPSolver *solver) override;
 
-    virtual void hardStamp(OPSolver *solver, double step) = 0;
+    virtual void hardStamp(OPSolver *solver, double step, double time) = 0;
 };
 
 class Capacitor: public DynamicComponent {
@@ -83,7 +86,7 @@ public:
      * Calculate next voltage
      */
     double nextSourceValue(double h) override;
-    void hardStamp(OPSolver *solver, double step) override;
+    void hardStamp(OPSolver *solver, double step, double time) override;
     Capacitor(Group group, char *label, data_t *value, int *nodes, double initialCondition);
 };
 
@@ -94,9 +97,36 @@ public:
      * Calculate next current
      */
     double nextSourceValue(double h) override;
-    void hardStamp(OPSolver *solver, double step) override;
+    void hardStamp(OPSolver *solver, double step, double time) override;
     Inductor(Group group, char *label, data_t *value, int *nodes, double initialCondition);
 };
+
+typedef struct SineParamsStruct {
+    double dcOffset;
+    double amplitude;
+    double frequency;
+    double phase;
+} SineParams;
+
+class SineSource: public DynamicComponent {
+private:
+    SineParams *sineParams;
+public:
+    /**
+     * Calculate next voltage
+     */
+    double nextSourceValue(double time) override;
+    void hardStamp(OPSolver *solver, double step, double time) override;
+    SineSource(Group group, char *label, data_t *value, int *nodes, SineParams *sineParams);
+
+    void print() override;
+};
+
+typedef struct PWLParamsStruct {
+    std::vector<std::pair<double, double> > timeVoltagePairs;
+} PWLParams;
+
+//TODO PWL SOURCE CLASS
 
 class Diode: public Component {
 public:
@@ -171,8 +201,8 @@ public:
 class ComponentFactory {
 public:
     Component *
-    createComponent(RowType type, char *label, int *nodes, data_t *value, char *controllerCurrent,
-                    double initialCondition);
+    createComponent(RowType type, char *label, int *nodes, data_t *value, char *controllerCurrent, double initialCondition,
+                        SineParams *sineParams, PWLParams *pwlParams);
 };
 
 #endif //BINS_COMPONENT_H
