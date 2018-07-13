@@ -47,13 +47,27 @@ double Capacitor::nextSourceValue(double h) {
 
 Inductor::Inductor(Group group, char *label, data_t *value, int *nodes, double initialCondition) : DynamicComponent(group, label, value, nodes) {
     type = strdup(INDUCTOR_STR);
+    inductance = value->value._double;
+    i = initialCondition;
+    u = 1E-6;
 }
 
 void Inductor::hardStamp(OPSolver *solver, double step) {
+    int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
+    if (group == GROUP1) {
+        hardStampIfNotGND(&solver->b, nodeVPlus, -nextSourceValue(step));
+        hardStampIfNotGND(&solver->b, nodeVMinus, nextSourceValue(step));
 
+    } else {
+        int group2Index = (int) solver->nodesCount + indexInGroup;
+
+        hardStampIfNotGND(&solver->H, nodeVPlus, group2Index, 1);
+        hardStampIfNotGND(&solver->H, nodeVMinus, group2Index, -1);
+        hardStampIfNotGND(&solver->H, group2Index, group2Index, 1);
+        hardStampIfNotGND(&solver->b, group2Index, nextSourceValue(step));
+    }
 }
 
 double Inductor::nextSourceValue(double h) {
-    return 0;
+    return i + (h / inductance) * u;
 }
-
