@@ -17,5 +17,5 @@ add_executable(
         src/Component.cpp
         include/Component.h
         src/TranSolver.cpp
-        src/TranSolver.h include/DynamicComponent.cpp)
+        src/TranSolver.h src/DynamicComponent.cpp)
 

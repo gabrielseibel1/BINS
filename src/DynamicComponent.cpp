@@ -2,7 +2,7 @@
 // Created by gabriel on 7/8/18.
 //
 
-#include "Component.h"
+#include "../include/Component.h"
 
 inline void hardStampIfNotGND(std::vector<std::vector<double> > *matrix, int i, int j, double value) {
     if (i >= 0 && j >= 0) (*matrix)[i][j] = value;
