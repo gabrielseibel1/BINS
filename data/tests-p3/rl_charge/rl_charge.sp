@@ -1,0 +1,5 @@
+RL circuit
+V1 1 0 10
+R1 1 2 100
+L1 2 0 10u
+.TRAN 1E-10 5E-7
