@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-./../../../cmake-build-debug/BINS pwl_source.sp pwl_source.dat
+./../../../bin/BINS-p3 pwl_source.sp pwl_source.dat
 gnuplot -p pwl_source.gnu
