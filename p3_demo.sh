@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cd rc_charge
+cd test/tests-p3/rc_charge
 source rc_charge_demo.sh
 cd ../rc_discharge/
 source rc_discharge_demo.sh
