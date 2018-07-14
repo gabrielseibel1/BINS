@@ -6,11 +6,9 @@
 #include <ostream>
 #include <iostream>
 #include <iomanip>
-#include "../include/Component.h"
-#include "../include/SpiceInterpreter.h"
-#include "../include/OPSolver.h"
+#include "../include/Solver.h"
 
-OPSolver::OPSolver(size_t size, size_t group1Size) : size(size), nodesCount(group1Size) {
+Solver::Solver(size_t size, size_t group1Size) : size(size), nodesCount(group1Size) {
     H = DoubleMatrix(size);
     for (int i = 0; i < size; ++i) {
         H[i] = std::vector<double>(size);
@@ -23,9 +21,9 @@ OPSolver::OPSolver(size_t size, size_t group1Size) : size(size), nodesCount(grou
     }
 }
 
-OPSolver::~OPSolver() = default;
+Solver::~Solver() = default;
 
-std::ostream &operator<<(std::ostream &os, const OPSolver &manager) {
+std::ostream &operator<<(std::ostream &os, const Solver &manager) {
     os << "\nSOLVER: {\n";
     os << "\n\tP (" << manager.size << "x1) = \n\t[ ";
     for (int j = 0; j < manager.size; ++j) {
@@ -59,7 +57,7 @@ std::ostream &operator<<(std::ostream &os, const OPSolver &manager) {
     return os;
 }
 
-void OPSolver::LUGEPP(DoubleMatrix *A) {
+void Solver::LUGEPP(DoubleMatrix *A) {
     for (int k = 0; k < size; ++k) {
         int pivotLine = lineWithLargestPivot(k);
         permutate(k, pivotLine);
@@ -73,7 +71,7 @@ void OPSolver::LUGEPP(DoubleMatrix *A) {
     }
 }
 
-void OPSolver::forwardSubstitution(DoubleMatrix *L, DoubleVector *y, DoubleVector *z) {
+void Solver::forwardSubstitution(DoubleMatrix *L, DoubleVector *y, DoubleVector *z) {
     for (int k = 0; k < size; ++k) {
         (*y)[p[k]] = (*z)[p[k]];
         for (int j = 0; j <= k - 1; ++j) {
@@ -83,7 +81,7 @@ void OPSolver::forwardSubstitution(DoubleMatrix *L, DoubleVector *y, DoubleVecto
     }
 }
 
-void OPSolver::forwardSubstitution(DoubleMatrix *L, DoubleVector *y, LongDoubleVector *z) {
+void Solver::forwardSubstitution(DoubleMatrix *L, DoubleVector *y, LongDoubleVector *z) {
     for (int k = 0; k < size; ++k) {
         (*y)[p[k]] = (*z)[p[k]];
         for (int j = 0; j <= k - 1; ++j) {
@@ -93,7 +91,7 @@ void OPSolver::forwardSubstitution(DoubleMatrix *L, DoubleVector *y, LongDoubleV
     }
 }
 
-void OPSolver::backwardSubstitution(DoubleMatrix *U, DoubleVector *x, DoubleVector *y) {
+void Solver::backwardSubstitution(DoubleMatrix *U, DoubleVector *x, DoubleVector *y) {
     for (int k = (int) size - 1; k >= 0; --k) {
         (*x)[p[k]] = (*y)[p[k]];
         for (int j = k + 1; j < size; ++j) {
@@ -103,11 +101,9 @@ void OPSolver::backwardSubstitution(DoubleMatrix *U, DoubleVector *x, DoubleVect
     }
 }
 
-void OPSolver::solveOP() {
+void Solver::solveOP() {
+    //save original matrix for later iterative refinement
     LongDoubleMatrix A = LongDoubleMatrix(size);
-    for (int i = 0; i < size; ++i) {
-        A[i] = std::vector<long double>(size);
-    }
     saveOriginalMatrix(&A);
 
     LUGEPP(&H);
@@ -126,7 +122,7 @@ void OPSolver::solveOP() {
     //measureRefinementChanges(xBeforeRefinement);
 }
 
-void OPSolver::measureRefinementChanges(const OPSolver::DoubleVector &xBeforeRefinement) const {
+void Solver::measureRefinementChanges(const Solver::DoubleVector &xBeforeRefinement) const {
     //compare x before and after iterative refinement
     LongDoubleVector difference = LongDoubleVector(size);
     for (int i = 0; i < size; ++i) {
@@ -140,7 +136,7 @@ void OPSolver::measureRefinementChanges(const OPSolver::DoubleVector &xBeforeRef
     std::cout << " ]\n";
 }
 
-void OPSolver::iterativeRefinement(const LongDoubleMatrix &A) {
+void Solver::iterativeRefinement(const LongDoubleMatrix &A) {
     /*std::cout << "Running iterative refinement "
             "(ABSTOL = " << ABSTOL << ", RELTOL = " << RELTOL << ", MAX_ITER = " << MAX_ITER_REFINEMENT << ") ...\n\n";*/
 
@@ -180,7 +176,7 @@ void OPSolver::iterativeRefinement(const LongDoubleMatrix &A) {
     while ((norm(z) <= RELTOL * norm(x) + ABSTOL) && (iteration <= MAX_ITER_REFINEMENT));
 }
 
-void OPSolver::buildMatricesFromStdIn() {
+void Solver::buildMatricesFromStdIn() {
     std::cout << "Size? ";
     std::cin >> size;
     for (int i = 0; i < size; ++i) {
@@ -195,11 +191,11 @@ void OPSolver::buildMatricesFromStdIn() {
     }
 }
 
-int OPSolver::getSize() const {
+size_t Solver::getSize() const {
     return size;
 }
 
-int OPSolver::lineWithLargestPivot(int k) {
+int Solver::lineWithLargestPivot(int k) {
     int line = k;
     double maxHik = H[p[k]][k];
     for (int i = k; i < size; ++i) {
@@ -212,7 +208,7 @@ int OPSolver::lineWithLargestPivot(int k) {
     return line;
 }
 
-void OPSolver::permutate(int line1, int line2) {
+void Solver::permutate(int line1, int line2) {
     if (line1 != line2) {
         int swap = p[line1];
         p[line1] = p[line2];
@@ -220,7 +216,7 @@ void OPSolver::permutate(int line1, int line2) {
     }
 }
 
-double OPSolver::norm(OPSolver::DoubleVector vector) {
+double Solver::norm(Solver::DoubleVector vector) {
     //find line with largest value
     double max = vector[p[0]];
     for (int i = 0; i < size; ++i) {
@@ -230,7 +226,10 @@ double OPSolver::norm(OPSolver::DoubleVector vector) {
     return max;
 }
 
-void OPSolver::saveOriginalMatrix(OPSolver::LongDoubleMatrix *A) {
+void Solver::saveOriginalMatrix(Solver::LongDoubleMatrix *A) {
+    for (int i = 0; i < size; ++i) {
+        (*A)[i] = std::vector<long double>(size);
+    }
     for (int i = 0; i < size; ++i) {
         for (int j = 0; j < size; ++j) {
             (*A)[i][j] = H[i][j];
@@ -238,24 +237,18 @@ void OPSolver::saveOriginalMatrix(OPSolver::LongDoubleMatrix *A) {
     }
 }
 
-void OPSolver::accumulativeStamp(std::vector<Component *> components) {
+void Solver::stamp(std::vector<Component*> components) {
     for (Component *component : components) {
         component->stamp(this);
     }
 }
 
-void OPSolver::substitutiveStamp(std::vector<DynamicComponent *> dynamicComponents, double step, double time) {
-    for (DynamicComponent *component : dynamicComponents) {
-        component->hardStamp(this, step, time);
-    }
-}
-
-void OPSolver::interpretedPrint(SpiceInterpreter *interpreter) {
+void Solver::interpretedPrint(SpiceInterpreter *interpreter) {
     std::cout << "\n\nOPERATION POINT:\n";
 
     std::string varType = "V";
-    NodeMap *nodeMap = interpreter->getNodeMap();
-    for (auto pair: nodeMap->getNodeMap()) {
+    NodeMap nodeMap = interpreter->getNodeMap();
+    for (auto pair: nodeMap.getNodeMap()) {
         if (pair.second == 0) continue;
 
         double value = x[p[pair.second - 1]];
@@ -265,32 +258,10 @@ void OPSolver::interpretedPrint(SpiceInterpreter *interpreter) {
     varType = "I";
     for (Component *comp : interpreter->getComponents()) {
         if (comp->group == GROUP2){
-            int index = static_cast<int>(nodeMap->getSize() - 1 + comp->indexInGroup);
+            int index = static_cast<int>(nodeMap.getSize() - 1 + comp->indexInGroup);
             double value = x[p[index]];
             std::cout << varType << "(" << comp->label << ") = " << value << "\n";
         }
     }
     std::cout << "\n\n";
-}
-
-void OPSolver::sum(OPSolver *pSolver) {
-    for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            H[i][j] += pSolver->H[i][j];
-        }
-    }
-    for (int i = 0; i < size; ++i) {
-        b[i] += pSolver->b[i];
-    }
-}
-
-void OPSolver::sub(OPSolver *pSolver) {
-    for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            H[i][j] -= pSolver->H[i][j];
-        }
-    }
-    for (int i = 0; i < size; ++i) {
-        b[i] -= pSolver->b[i];
-    }
 }
