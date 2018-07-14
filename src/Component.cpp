@@ -42,7 +42,7 @@ Component * ComponentFactory::createComponent(RowType type, char *label, int *no
         case R: return new Resistor(GROUP1, label, value, nodes);
         case V: return new VSource(GROUP2, label, value, nodes);
         case S: return new SineSource(GROUP2, label, value, nodes, sineParams);
-        //TODO case PWL
+        case P: return new PWLSource(GROUP2, label, value, nodes, pwlParams);
         case CMD: case CMT: return nullptr;
     }
 }

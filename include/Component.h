@@ -43,7 +43,10 @@ static const char *const RESISTOR_STR = "RESISTOR ";
 
 static const char *const V_SOURCE_STR = "V-SOURCE ";
 
-static const char *const SINE_SOURCE_STR = "SINE     ";
+static const char *const SINE_SOURCE_STR = "SINE-SRC ";
+
+static const char *const PWL_SOURCE_STR = "PWL-SRC  ";
+
 
 class Component {
 public:
@@ -123,10 +126,22 @@ public:
 };
 
 typedef struct PWLParamsStruct {
-    std::vector<std::pair<double, double> > timeVoltagePairs;
+    std::vector<std::pair<double, double> > *timeVoltagePairs;
 } PWLParams;
 
-//TODO PWL SOURCE CLASS
+class PWLSource: public DynamicComponent {
+private:
+    PWLParams *pwlParams;
+public:
+    /**
+     * Calculate next voltage
+     */
+    double nextSourceValue(double time) override;
+    void hardStamp(OPSolver *solver, double step, double time) override;
+    PWLSource(Group group, char *label, data_t *value, int *nodes, PWLParams *pwlParams);
+
+    void print() override;
+};
 
 class Diode: public Component {
 public:

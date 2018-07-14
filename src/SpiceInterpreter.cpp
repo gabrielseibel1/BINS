@@ -113,12 +113,31 @@ RowType SpiceInterpreter::checkIfCellHasSpecialVSource(cell_t *cell, SineParams 
                 cell = cell->next_cell;
             }
 
-            //TODO check close parentheses
-
         //compare with "PWL("
         } else if (strcmp(prefix, "PWL(") == 0) {
             type = P;
-            //TODO fill PWL params
+
+            //fill pwl parameters
+            *pwlParams = static_cast<PWLParams *>(malloc(sizeof(PWLParams)));
+            (*pwlParams)->timeVoltagePairs = new std::vector<std::pair<double, double>>;
+
+            int pointCount = 0;
+            while (cell) {
+                //get double value for time
+                checkIfDataHasUnitPrefix(cell->data, /*offset for "PWL("*/(pointCount == 0) ? 4 : 0);
+                double time = cell->data->value._double;
+                cell = cell->next_cell;
+
+                //get double value for voltage
+                checkIfDataHasUnitPrefix(cell->data, 0);
+                double voltage = cell->data->value._double;
+                cell = cell->next_cell;
+
+                //add pair to vector
+                (*pwlParams)->timeVoltagePairs->emplace_back(std::make_pair(time, voltage));
+
+                pointCount++;
+            }
         }
     }
 

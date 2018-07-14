@@ -7,3 +7,7 @@ cd ../rl_charge/
 source rl_charge_demo.sh
 cd ../rl_discharge/
 source rl_discharge_demo.sh
+cd ../sine_source/
+source sine_source_demo.sh
+cd ../pwl_source/
+source pwl_source_demo.sh

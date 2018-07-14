@@ -25,7 +25,8 @@ TranSolver::TranSolver(SpiceInterpreter *interpreter) {
     for (auto *component : interpreter->getComponents()) {
         if (strcmp(component->type, CAPACITOR_STR) == 0 ||
             strcmp(component->type, INDUCTOR_STR) == 0 ||
-            strcmp(component->type, SINE_SOURCE_STR) == 0)
+            strcmp(component->type, SINE_SOURCE_STR) == 0 ||
+            strcmp(component->type, PWL_SOURCE_STR) == 0)
             dynamicComponents.emplace_back(dynamic_cast<DynamicComponent*>(component));
         else
             staticComponents.emplace_back(component);
@@ -62,12 +63,10 @@ void TranSolver::solveTransient() {
         //recalculate U and I for capacitors, inductors and dynamic sources
         updateDynamicComponents(opSolver);
 
-        std::cout << *opSolver;
-
         //subtract contributions of dynamic elements
         opSolver->sub(dynMatrices);
 
-        opSolver->interpretedPrint(spiceInterpreter);
+        //opSolver->interpretedPrint(spiceInterpreter);
     }
 
 }

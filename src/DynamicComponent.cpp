@@ -102,8 +102,7 @@ double SineSource::nextSourceValue(double time) {
     double frequency = sineParams->frequency;
     double phase = sineParams->phase;
 
-    double ret = dcOffset + amplitude * sin(2 * M_PI * frequency * (time - phase));
-    return ret;
+    return dcOffset + amplitude * sin(2 * M_PI * frequency * (time - phase));
 }
 
 void SineSource::print() {
@@ -121,4 +120,68 @@ void SineSource::print() {
     printf("\n");
 }
 
-//TODO PWL SOURCE
+//PWL SOURCE
+
+
+PWLSource::PWLSource(Group group, char *label, data_t *value, int *nodes, PWLParams *pwlParams)
+        : DynamicComponent(group, label, value, nodes) {
+
+    type = strdup(PWL_SOURCE_STR);
+    this->pwlParams = pwlParams;
+}
+
+void PWLSource::hardStamp(OPSolver *solver, double step, double time) {
+    int nodeVPlus = nodes[0] - 1, nodeVMinus = nodes[1] - 1;
+    int group2Index = (int) solver->nodesCount + indexInGroup;
+
+    hardStampIfNotGND(&solver->H, nodeVPlus, group2Index, 1);
+    hardStampIfNotGND(&solver->H, nodeVMinus, group2Index, -1);
+    hardStampIfNotGND(&solver->H, group2Index, nodeVPlus, 1);
+    hardStampIfNotGND(&solver->H, group2Index, nodeVMinus, -1);
+    hardStampIfNotGND(&solver->b, group2Index, nextSourceValue(time));
+}
+
+double PWLSource::nextSourceValue(double time) {
+    double v1, v2, t1, t2;
+
+    //find the time range
+    for (int i = 0; i < pwlParams->timeVoltagePairs->size(); ++i) {
+        std::pair<double, double> point1 = pwlParams->timeVoltagePairs->at(i);
+        std::pair<double, double> point2;
+
+        //if there is next point, use it
+        if (i + 1 < pwlParams->timeVoltagePairs->size()){
+            point2 = pwlParams->timeVoltagePairs->at(i + 1);
+        } else { //if not, the next point should be the same as the last ("a" will be 0 and we will return v1)
+            point2 = pwlParams->timeVoltagePairs->at(i);
+        }
+
+        t1 = point1.first; t2 = point2.first;
+        v1 = point1.second; v2 = point2.second;
+
+        if (t1 <= time && time <= t2) {
+            double a = (v2 - v1) / (t2 - t1);
+            return v1 + a * (time - t1);
+        }
+    }
+    if (time < pwlParams->timeVoltagePairs->at(0).first) { //time is before first point - use 0
+        return 0;
+    } else { // time is after last point - use last voltage
+        return pwlParams->timeVoltagePairs->at(pwlParams->timeVoltagePairs->size() - 1).second;
+    }
+}
+
+void PWLSource::print() {
+    printf("TYPE: %s\t\t", type);
+    printf("GROUP: %d\t\t", group);
+    printf("INDEX_IN_GROUP: %d\t\t", indexInGroup);
+    printf("LABEL: %s\t\t", label);
+    for (int i = 0; i < MAX_NODES; ++i) {
+        if (nodes[i] != UNUSED_NODE) printf("NODE%d:\t%d\t", i, nodes[i]);
+    }
+    printf("PWL(");
+    for (auto pair : *(pwlParams->timeVoltagePairs)) {
+        printf("[%f, %f]", pair.first, pair.second);
+    }
+    printf("\n");
+}
